@@ -1,0 +1,5 @@
+APScheduler==3.10.1
+alpaca-py==0.8.2
+alpaca-trade-api==3.0.2
+python-dotenv==1.0.0
+yahoo-fin==0.8.9.1
