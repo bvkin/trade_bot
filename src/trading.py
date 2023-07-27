@@ -1,6 +1,6 @@
 from alpaca_trade_manager import AlpacaTradeManager
 from yahoo_fin.stock_info import tickers_sp500
-
+import logging
 
 trade_manager = AlpacaTradeManager()
 
@@ -21,7 +21,7 @@ def signal_generator(symbol):
         previous_open = df.iloc[1, df.columns.get_loc('open')]
         previous_close = df.iloc[1, df.columns.get_loc('open')]
     except IndexError:
-        print(f"Unable to get the required data for {symbol}")
+        logging.warning(f"Unable to get the required data for {symbol}")
         return NO_CLEAR_PATTERN
 
     # Bearish Pattern
@@ -52,19 +52,18 @@ def make_orders():
     Makes buy orders for all stocks in the S&P 500 given a bullish signal.
     Makes sell orders for all owned stocks bearish signal.
     """
-    print("Making orders...")
+    logging.info("Making orders...")
     for ticker in tickers_sp500()[0:10]:
         ticker = ticker.replace('-', '.')
         signal = signal_generator(ticker)
-        print(ticker + ": " + str(signal))
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
-            print("Buy order for " + ticker + " placed.")
+            logging.info("Buy order for " + ticker + " placed.")
 
     owned_tickers = [position.symbol for position in trade_manager.api.list_positions()]
     for ticker in owned_tickers:
         signal = signal_generator(ticker)
-        print(ticker + ": " + str(signal))
+        logging.info(ticker + ": " + str(signal))
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
-            print("Sell order for " + ticker + " placed.")
+            logging.info("Sell order for " + ticker + " placed.")
