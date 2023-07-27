@@ -15,11 +15,15 @@ def signal_generator(symbol):
     """
     df = trade_manager.get_price_data(symbol)
 
-    open = df.iloc[1, df.columns.get_loc('open')]
-    close = df.iloc[1, df.columns.get_loc('close')]
-    previous_open = df.iloc[1, df.columns.get_loc('open')]
-    previous_close = df.iloc[1, df.columns.get_loc('open')]
-    
+    try:
+        open = df.iloc[1, df.columns.get_loc('open')]
+        close = df.iloc[1, df.columns.get_loc('close')]
+        previous_open = df.iloc[1, df.columns.get_loc('open')]
+        previous_close = df.iloc[1, df.columns.get_loc('open')]
+    except IndexError:
+        print(f"Unable to get the required data for {symbol}")
+        return NO_CLEAR_PATTERN
+
     # Bearish Pattern
     if (
         open > close and 
