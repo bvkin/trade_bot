@@ -1,17 +1,18 @@
 from alpaca_trade_api.rest import REST, TimeFrame
 import datetime
-from yahoo_fin.stock_info import get_quote_table
-
-import os
+from yahoo_fin import stock_info as si
 
 class AlpacaTradeManager:
-    def __init__(self, alpaca_api_key: str, alpaca_secret_key: str, base_url: str = "https://paper-api.alpaca.markets", api_version: str = 'v2'):
-        self.api = REST(
-            alpaca_api_key, 
-            alpaca_secret_key,
-            "https://paper-api.alpaca.markets",
-            api_version='v2'
-        )
+    def __init__(self, alpaca_api_key: str, alpaca_secret_key: str, base_url: str = "https://paper-api.alpaca.markets", api_version: str = 'v2', api=None):
+        if api is None:
+            self.api = REST(
+                alpaca_api_key, 
+                alpaca_secret_key,
+                base_url,  
+                api_version
+            )
+        else:
+            self.api = api
 
 
     @staticmethod
@@ -49,7 +50,7 @@ class AlpacaTradeManager:
         """
         buying_power = float(self.api.get_account().buying_power)
         purchase_amnt = round(buying_power * 0.05, 2)
-        share_price = get_quote_table(ticker)['Quote Price']
+        share_price = si.get_quote_table(ticker)['Quote Price']
         shares = int(purchase_amnt / share_price)
         self.api.submit_order(
             symbol=ticker,
