@@ -25,6 +25,20 @@ class TestAlpacaTradeManager(unittest.TestCase):
         # Check that submit_order was called with the expected arguments
         self.mock_api.submit_order.assert_called_with(
             symbol="TEST", qty=5, side='buy', type='market', time_in_force='gtc')
+        
+
+    @patch('trade_bot.alpaca_trade_manager.AlpacaTradeManager.get_stock_qty', return_value=10)
+    def test_sell_stock(self, mock_get_stock_qty):
+        self.trade_manager.sell_stock("TEST")
+
+        # Check the result
+        self.mock_api.submit_order.assert_called_once_with(
+            symbol="TEST",
+            qty=10,
+            side='sell',
+            type='market',
+            time_in_force='gtc'
+        )
 
 
     def test__get_trade_period(self):
