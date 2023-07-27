@@ -21,5 +21,5 @@ python trade_bot/main.py
 ## Tests
 You can run test cases using make
 ```
-make test
+make tests
 ```

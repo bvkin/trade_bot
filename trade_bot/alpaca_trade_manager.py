@@ -1,26 +1,14 @@
 from alpaca_trade_api.rest import REST, TimeFrame
 import datetime
-from dotenv import load_dotenv
 from yahoo_fin.stock_info import get_quote_table
 
 import os
 
 class AlpacaTradeManager:
-    def __init__(self):
-        load_dotenv()
-        self.API_KEY = os.getenv('ALPACA_API_KEY')
-        self.SECRET_KEY = os.getenv('ALPACA_SECRET_KEY')
-
-        if not self.API_KEY:
-            raise EnvironmentError("ALPACA_API_KEY is missing in the environment")
-        
-        if not self.SECRET_KEY:
-            raise EnvironmentError("ALPACA_SECRET_KEY is missing in the environment")
-
-
+    def __init__(self, alpaca_api_key: str, alpaca_secret_key: str, base_url: str = "https://paper-api.alpaca.markets", api_version: str = 'v2'):
         self.api = REST(
-            self.API_KEY, 
-            self.SECRET_KEY,
+            alpaca_api_key, 
+            alpaca_secret_key,
             "https://paper-api.alpaca.markets",
             api_version='v2'
         )

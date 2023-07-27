@@ -1,14 +1,12 @@
-from alpaca_trade_manager import AlpacaTradeManager
 from yahoo_fin.stock_info import tickers_sp500
 import logging
 
-trade_manager = AlpacaTradeManager()
 
 # Constants for the signal generator
 BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
 
 
-def signal_generator(symbol):
+def signal_generator(trade_manager, symbol):
     """
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
@@ -47,7 +45,7 @@ def signal_generator(symbol):
         return NO_CLEAR_PATTERN
 
 
-def make_orders():
+def make_orders(trade_manager):
     """
     Makes buy orders for all stocks in the S&P 500 given a bullish signal.
     Makes sell orders for all owned stocks bearish signal.
@@ -55,15 +53,14 @@ def make_orders():
     logging.info("Making orders...")
     for ticker in tickers_sp500()[0:10]:
         ticker = ticker.replace('-', '.')
-        signal = signal_generator(ticker)
+        signal = signal_generator(trade_manager, ticker)
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
 
     owned_tickers = [position.symbol for position in trade_manager.api.list_positions()]
     for ticker in owned_tickers:
-        signal = signal_generator(ticker)
-        logging.info(ticker + ": " + str(signal))
+        signal = signal_generator(trade_manager, ticker)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
