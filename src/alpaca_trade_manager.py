@@ -25,6 +25,7 @@ class AlpacaTradeManager:
             api_version='v2'
         )
 
+
     def get_price_data(self, ticker):
         """
         Returns a pandas dataframe of the price data for last two days of a given ticker.
@@ -33,6 +34,7 @@ class AlpacaTradeManager:
         period_start = (datetime.date.today() - datetime.timedelta(days=4)).strftime("%Y-%m-%d")
 
         return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment='raw').df
+
 
     def buy_stock(self, ticker):
         """
@@ -50,6 +52,7 @@ class AlpacaTradeManager:
             time_in_force='gtc'
         )
 
+
     def sell_stock(self, ticker):
         """
         Sells all shares of a stock.
@@ -61,6 +64,7 @@ class AlpacaTradeManager:
             type='market',
             time_in_force='gtc'
         )
+
 
     def get_stock_qty(self, ticker):
         """

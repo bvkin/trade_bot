@@ -4,6 +4,10 @@ from yahoo_fin.stock_info import tickers_sp500
 
 trade_manager = AlpacaTradeManager()
 
+# Constants for the signal generator
+BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
+
+
 def signal_generator(symbol):
     """
     Returns a signal based on the price data of a given ticker.
@@ -18,25 +22,25 @@ def signal_generator(symbol):
     
     # Bearish Pattern
     if (
-        open>close and 
-        previous_open<previous_close and 
-        close<previous_open and
-        open>=previous_close
+        open > close and 
+        previous_open < previous_close and 
+        close < previous_open and
+        open >= previous_close
     ):
-        return 1
+        return BEARISH
 
     # Bullish Pattern
     elif (
-        open<close and 
-        previous_open>previous_close and 
-        close>previous_open and
-        open<=previous_close
+        open < close and 
+        previous_open > previous_close and 
+        close > previous_open and
+        open <= previous_close
     ):
-        return 2
+        return BULLISH
     
     # No clear pattern
     else:
-        return 0
+        return NO_CLEAR_PATTERN
 
 
 def make_orders():
@@ -49,7 +53,7 @@ def make_orders():
         ticker = ticker.replace('-', '.')
         signal = signal_generator(ticker)
         print(ticker + ": " + str(signal))
-        if signal == 2:
+        if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             print("Buy order for " + ticker + " placed.")
 
@@ -57,6 +61,6 @@ def make_orders():
     for ticker in owned_tickers:
         signal = signal_generator(ticker)
         print(ticker + ": " + str(signal))
-        if signal == 1:
+        if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             print("Sell order for " + ticker + " placed.")
