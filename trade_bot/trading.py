@@ -24,7 +24,7 @@ def get_first_last_market_days(n):
     return period_start, period_end
 
 
-def signal_generator(trade_manager, symbol):
+def engulfing_candlestick_signal_generator(trade_manager, symbol):
     """
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
@@ -35,13 +35,12 @@ def signal_generator(trade_manager, symbol):
     try:
         open = df.iloc[1, df.columns.get_loc('open')]
         close = df.iloc[1, df.columns.get_loc('close')]
-        previous_open = df.iloc[1, df.columns.get_loc('open')]
-        previous_close = df.iloc[1, df.columns.get_loc('open')]
+        previous_open = df.iloc[0, df.columns.get_loc('open')]
+        previous_close = df.iloc[0, df.columns.get_loc('close')]
     except IndexError:
         logging.warning(f"Unable to get the required data for {symbol}")
         return NO_CLEAR_PATTERN
 
-    # Bearish Pattern
     if (
         open > close and 
         previous_open < previous_close and 
@@ -72,14 +71,14 @@ def make_orders(trade_manager):
     logging.info("Making orders...")
     for ticker in tickers_sp500()[0:10]:
         ticker = ticker.replace('-', '.')
-        signal = signal_generator(trade_manager, ticker)
+        signal = engulfing_candlestick_signal_generator(trade_manager, ticker)
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
 
     owned_tickers = [position.symbol for position in trade_manager.api.list_positions()]
     for ticker in owned_tickers:
-        signal = signal_generator(trade_manager, ticker)
+        signal = engulfing_candlestick_signal_generator(trade_manager, ticker)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
