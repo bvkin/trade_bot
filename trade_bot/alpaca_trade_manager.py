@@ -15,32 +15,10 @@ class AlpacaTradeManager:
             self.api = api
 
 
-    @staticmethod
-    def _get_trade_period(today):
-        weekday = today.weekday()
-
-        # If today is Monday
-        if weekday == 0:
-            period_end = today - datetime.timedelta(days=3)
-            period_start = today - datetime.timedelta(days=4)
-        # If today is Tuesday
-        elif weekday == 1:
-            period_end = today - datetime.timedelta(days=1)
-            period_start = today - datetime.timedelta(days=4)
-        else:
-            period_end = today - datetime.timedelta(days=1)
-            period_start = today - datetime.timedelta(days=2)
-
-        return period_start, period_end
-
-
-    def get_price_data(self, ticker):
+    def get_price_data(self, ticker, period_start, period_end):
         """
         Returns a pandas dataframe of the price data for last two days of a given ticker.
         """
-        today = datetime.date.today()
-        period_start, period_end = self._get_trade_period(today)
-
         return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment='raw').df
 
 

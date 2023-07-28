@@ -1,9 +1,27 @@
+import datetime
 from yahoo_fin.stock_info import tickers_sp500
 import logging
+import pandas_market_calendars as mcal
 
 
 # Constants for the signal generator
 BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
+
+def get_first_last_market_days(n):
+    # Get the NYSE calendar
+    nyse = mcal.get_calendar('NYSE')
+
+    end_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    start_date = end_date - datetime.timedelta(days=(n)*4)  # Assuming weekends and holidays, approx n*2 should cover it
+
+    market_days = nyse.valid_days(start_date=start_date, end_date=end_date)
+
+    market_days = market_days[-n:]
+
+    period_start = market_days[0].strftime('%Y-%m-%d')
+    period_end = market_days[-1].strftime('%Y-%m-%d')
+
+    return period_start, period_end
 
 
 def signal_generator(trade_manager, symbol):
@@ -11,7 +29,8 @@ def signal_generator(trade_manager, symbol):
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
     """
-    df = trade_manager.get_price_data(symbol)
+    period_start, period_end = get_first_last_market_days(2)
+    df = trade_manager.get_price_data(symbol, period_start, period_end)
 
     try:
         open = df.iloc[1, df.columns.get_loc('open')]

@@ -9,7 +9,11 @@ class TestAlpacaTradeManager(unittest.TestCase):
     def setUp(self):
         # Create a mock API object and a TradeManager that uses it
         self.mock_api = Mock()
-        self.trade_manager = AlpacaTradeManager(alpaca_api_key="api_key", alpaca_secret_key="secret_key", api=self.mock_api,)
+        self.trade_manager = AlpacaTradeManager(
+            alpaca_api_key="api_key",
+            alpaca_secret_key="secret_key",
+            api=self.mock_api,
+        )
 
 
     @patch.object(si, 'get_quote_table', return_value={'Quote Price': 10})
@@ -63,6 +67,7 @@ class TestAlpacaTradeManager(unittest.TestCase):
         # If today is some other day (e.g., Wednesday)
         today = datetime.date(2023, 8, 9)
         self.assertEqual(atm._get_trade_period(today), (datetime.date(2023, 8, 7), datetime.date(2023, 8, 8)))
+
 
 if __name__ == '__main__':
     unittest.main()

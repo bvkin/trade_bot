@@ -4,7 +4,7 @@ import datetime
 from dotenv import load_dotenv
 import logging
 import os
-from trading import make_orders
+from trading import make_orders, get_first_last_market_days
 
 # Set global logging level to INFO
 logging.basicConfig(level=logging.INFO)
@@ -19,8 +19,8 @@ if __name__ == '__main__':
     secret_key = os.getenv('ALPACA_SECRET_KEY')
     trade_manager = AlpacaTradeManager(alpaca_api_key=api_key, alpaca_secret_key=secret_key)
 
+    logging.info("Running order scheduler...")
     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     scheduler = BlockingScheduler()
-    logging.info("Running order scheduler...")
     scheduler.add_job(make_orders, 'cron', args=[trade_manager], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
     scheduler.start()
