@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from pandas import DataFrame
 from unittest.mock import patch, Mock
@@ -15,24 +16,42 @@ class TestTrading(unittest.TestCase):
         test_cases = [
             {
                 "name": "bearish",
-                "data": DataFrame({'open': [7, 13], 'close': [8, 6]}, index=["2023-07-25", "2023-07-26"]),
+                "open": 13,
+                "close": 6,
+                "previous_open": 7,
+                "previous_close": 8,
+                "index": ["2023-07-25", "2023-07-26"],
                 "expected": 1
             },
             {
                 "name": "bullish",
-                "data": DataFrame({'open': [12, 10], 'close': [11, 13]}, index=["2023-07-25", "2023-07-26"]),
+                "open": 10,
+                "close": 13,
+                "previous_open": 12,
+                "previous_close": 11,
+                "index": ["2023-07-25", "2023-07-26"],
                 "expected": 2
             },
             {
                 "name": "no clear pattern",
-                "data": DataFrame({'open': [10, 11], 'close': [11, 12]}, index=["2023-07-25", "2023-07-26"]),
+                "open": 11,
+                "close": 12,
+                "previous_open": 10,
+                "previous_close": 11,
+                "index": ["2023-07-25", "2023-07-26"],
                 "expected": 0
             }
         ]
 
         for test_case in test_cases:
             with self.subTest(msg=test_case["name"]):
-                self.trade_manager.get_price_data.return_value = test_case["data"]
+                self.trade_manager.get_price_data.return_value = DataFrame(
+                    {
+                     'open': [test_case["previous_open"], test_case["open"]],
+                     'close': [test_case["previous_close"], test_case["close"]]
+                    },
+                    index=test_case["index"]
+                )
 
                 self.assertEqual(engulfing_candlestick_signal_generator(self.trade_manager, "TEST"), test_case["expected"])
 
