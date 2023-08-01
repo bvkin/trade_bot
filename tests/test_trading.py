@@ -3,7 +3,7 @@ import unittest
 from pandas import DataFrame
 from unittest.mock import patch, Mock
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
-from trade_bot.trading import engulfing_candlestick_signal_generator, get_first_last_market_days
+from trade_bot.trading import engulfing_candlestick_signal_generator, get_first_last_market_days, is_market_active
 
 
 class TestTrading(unittest.TestCase):
@@ -55,7 +55,51 @@ class TestTrading(unittest.TestCase):
 
                 self.assertEqual(engulfing_candlestick_signal_generator(self.trade_manager, "TEST"), test_case["expected"])
 
-    @patch('trade_bot.alpaca_trade_manager.datetime.datetime')
+
+
+    @patch('trade_bot.trading.datetime')
+    def test_is_market_active(self, mock_datetime):
+        test_cases = [
+            {
+                # Weekday, market is active
+                "name": "weedkady_market_active",
+                "today": datetime(2023, 7, 27), # Thursday
+                "now": datetime(2023, 7, 27, 9, 31), # 9:31 AM
+                "expected": True,
+            },
+            {
+                # Weekday, market is inactive
+                "name": "weekday_market_inactive",
+                "today": datetime(2023, 7, 27), # Thursday
+                "now": datetime(2023, 7, 27, 18, 30), # 6:30 PM
+                "expected": False,
+            },
+            {
+                # Weekend, market is inactive
+                "name": "weekend_market_inactive",
+                "today": datetime(2023, 7, 29), # Suturday
+                "now": datetime(2023, 7, 27, 9, 31), # 9:31 AM
+                "expected": False,
+            }
+        ]
+
+        # Since we are mocking datetime, we need a side effect for the market open and close because these are overwritten by our mock
+        def strptime_side_effect(time_str, format_str):
+            if time_str == "09:30":
+                return datetime.strptime("09:30", "%H:%M")
+            elif time_str == "16:15":
+                return datetime.strptime("16:15", "%H:%M")
+
+        mock_datetime.strptime.side_effect = strptime_side_effect
+
+        for test_case in test_cases:
+            with self.subTest(msg=test_case["name"]):
+                mock_datetime.today.return_value = test_case["today"]
+                mock_datetime.now.return_value = test_case["now"]
+                self.assertEqual(is_market_active(), test_case["expected"])
+
+
+    @patch('trade_bot.trading.datetime')
     def test_get_first_last_market_days(self, mock_datetime):
         test_cases = [
             {
@@ -114,7 +158,7 @@ class TestTrading(unittest.TestCase):
             },
             {
                 # Spans over a holidays market active
-                "name": "over_holiday_market_inactive",
+                "name": "over_holiday_market_active",
                 "date": datetime(2023, 7, 7), # July 7th through July 4th
                 "market_days_period": 5,
                 "market_active": True,

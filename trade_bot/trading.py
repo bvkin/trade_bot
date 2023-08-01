@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from yahoo_fin.stock_info import tickers_sp500
 import logging
 import pandas_market_calendars as mcal
@@ -16,8 +16,8 @@ def get_first_last_market_days(market_days_period, market_active=False):
     else:
         market_offset = 0
 
-    end_date = datetime.datetime.now() - datetime.timedelta(days=market_offset)
-    start_date = end_date - datetime.timedelta(days=(market_days_period)*4)  # Assuming weekends and holidays, approx n*2 should cover it
+    end_date = datetime.now() - timedelta(days=market_offset)
+    start_date = end_date - timedelta(days=(market_days_period)*4)  # Assuming weekends and holidays, approx n*2 should cover it
 
     market_days = nyse.valid_days(start_date=start_date, end_date=end_date)
 
@@ -35,15 +35,15 @@ def is_market_active():
     market data from the past 15 minutes of a free plan
     """
     # Check if today is a weekday (0=Monday, 6=Sunday)
-    if datetime.datetime.today().weekday() >= 5:
+    if datetime.today().weekday() >= 5:
         return False
 
     # Get Current time
-    current_time = datetime.datetime.now().time()
+    current_time = datetime.now().time()
 
     # Set market open and close times (+15 min for close)
-    market_open_time = datetime.datetime.strptime("09:30", "%H:%M").time()
-    market_close_time = datetime.datetime.strptime("16:15", "%H:%M").time()
+    market_open_time = datetime.strptime("09:30", "%H:%M").time()
+    market_close_time = datetime.strptime("16:15", "%H:%M").time()
 
     # Check if the current time is within the market hours
     if market_open_time <= current_time <= market_close_time:
