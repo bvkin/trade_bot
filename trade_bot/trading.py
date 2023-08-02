@@ -104,7 +104,7 @@ def make_orders(trade_manager):
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
 
-    owned_tickers = [position.symbol for position in trade_manager.api.list_positions()]
+    owned_tickers = trade_manager.get_owned_tickers()
     for ticker in owned_tickers:
         signal = engulfing_candlestick_signal_generator(trade_manager, ticker)
         if signal == BEARISH:

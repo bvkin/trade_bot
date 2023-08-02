@@ -56,5 +56,11 @@ class AlpacaTradeManager:
         """
         Returns the quantity of a stock owned.
         """
-        positions = self.api.list_positions()
-        return [item.qty for item in positions if item.symbol == ticker][0]
+        return [item.qty for item in  self.api.list_positions() if item.symbol == ticker][0]
+
+
+    def get_owned_tickers(self):
+        """
+        Returns a list of tickers currently held in account
+        """
+        return [position.symbol for position in self.api.list_positions()]

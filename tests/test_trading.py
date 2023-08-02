@@ -4,6 +4,7 @@ from pandas import DataFrame
 from unittest.mock import patch, Mock
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
 from trade_bot.trading import engulfing_candlestick_signal_generator, get_first_last_market_days, is_market_active
+from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
 
 
 class TestTrading(unittest.TestCase):
