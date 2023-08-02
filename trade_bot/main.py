@@ -19,10 +19,8 @@ if __name__ == '__main__':
     secret_key = os.getenv('ALPACA_SECRET_KEY')
     trade_manager = AlpacaTradeManager(alpaca_api_key=api_key, alpaca_secret_key=secret_key)
 
-    make_orders(trade_manager)
-
-    # logging.info("Running order scheduler...")
-    # current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    # scheduler = BlockingScheduler()
-    # scheduler.add_job(make_orders, 'cron', args=[trade_manager], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
-    # scheduler.start()
+    logging.info("Running order scheduler...")
+    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    scheduler = BlockingScheduler()
+    scheduler.add_job(make_orders, 'cron', args=[trade_manager], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
+    scheduler.start()
