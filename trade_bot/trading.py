@@ -57,7 +57,7 @@ def engulfing_candlestick_signal_generator(trade_manager, symbol):
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
     """
-    period_start, period_end = get_first_last_market_days(2, market_active=is_market_active()) # If market is active, today's date is -1
+    period_start, period_end = get_first_last_market_days(2, market_active=True) # If market is active, today's date is -1
     df = trade_manager.get_price_data(symbol, period_start, period_end)
 
     try:

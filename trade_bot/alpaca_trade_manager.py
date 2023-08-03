@@ -1,5 +1,4 @@
 from alpaca_trade_api.rest import REST, TimeFrame
-import datetime
 from yahoo_fin import stock_info as si
 
 class AlpacaTradeManager:
