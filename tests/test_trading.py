@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
 import unittest
 from pandas import DataFrame
+import pytz
 from unittest.mock import patch, Mock
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
-from trade_bot.trading import engulfing_candlestick_signal_generator, get_first_last_market_days, is_market_active
+from trade_bot.trading import engulfing_candlestick_signal_generator, get_first_last_market_days, is_after_alpaca_market_hours
 from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
 
 
@@ -59,119 +60,114 @@ class TestTrading(unittest.TestCase):
 
 
     @patch('trade_bot.trading.datetime')
-    def test_is_market_active(self, mock_datetime):
+    def test_is_after_alpaca_market_hours(self, mock_datetime):
+        eastern = pytz.timezone('US/Eastern')
         test_cases = [
             {
-                # Weekday, market is active
-                "name": "weedkady_market_active",
-                "today": datetime(2023, 7, 27), # Thursday
-                "now": datetime(2023, 7, 27, 9, 31), # 9:31 AM
+                "name": "after_hours",
+                "now": datetime(2023, 7, 27, 17, 31, tzinfo=eastern), # 5:31 PM Eastern
                 "expected": True,
             },
             {
-                # Weekday, market is inactive
-                "name": "weekday_market_inactive",
-                "today": datetime(2023, 7, 27), # Thursday
-                "now": datetime(2023, 7, 27, 18, 30), # 6:30 PM
+                "name": "during_hours",
+                "now": datetime(2023, 7, 27, 10, 0, tzinfo=eastern), # 10 AM Eastern
                 "expected": False,
             },
             {
-                # Weekend, market is inactive
-                "name": "weekend_market_inactive",
-                "today": datetime(2023, 7, 29), # Suturday
-                "now": datetime(2023, 7, 27, 9, 31), # 9:31 AM
+                "name": "before_hours",
+                "now": datetime(2023, 7, 27, 6, 0, tzinfo=eastern), # 10 AM Eastern
                 "expected": False,
             }
         ]
 
-        # Since we are mocking datetime, we need a side effect for the market open and close because these are overwritten by our mock
-        def strptime_side_effect(time_str, format_str):
-            if time_str == "09:30":
-                return datetime.strptime("09:30", "%H:%M")
-            elif time_str == "16:15":
-                return datetime.strptime("16:15", "%H:%M")
-
-        mock_datetime.strptime.side_effect = strptime_side_effect
-
         for test_case in test_cases:
             with self.subTest(msg=test_case["name"]):
-                mock_datetime.today.return_value = test_case["today"]
                 mock_datetime.now.return_value = test_case["now"]
-                self.assertEqual(is_market_active(), test_case["expected"])
+                mock_datetime.strptime.return_value = datetime.strptime("16:16", "%H:%M")
+                self.assertEqual(is_after_alpaca_market_hours(), test_case["expected"])
 
 
-    @patch('trade_bot.trading.datetime')
-    def test_get_first_last_market_days(self, mock_datetime):
+    @patch('trade_bot.trading.date')
+    def test_get_first_last_market_days(self, mock_date):
         test_cases = [
             {
                 # Spans over week days
-                "name": "over_week_market_inactive",
-                "date": datetime(2023, 7, 28), # Friday
+                "name": "over_week_dont_query_today",
+                "date": date(2023, 7, 28), # Friday
                 "market_days_period": 5,
-                "market_active": False,
+                "query_today": False,
+                "expected_start_date": '2023-07-21',
+                "expected_end_date": "2023-07-27"
+            },
+            {
+                # Spans over week days
+                "name": "over_week_query_today",
+                "date": date(2023, 7, 28), # Friday
+                "market_days_period": 5,
+                "query_today": True,
                 "expected_start_date": '2023-07-24',
-                "expected_end_date": "2023-07-28"
+                "expected_end_date": "2023-07-28T16:30:00-04:00"
             },
             {
                 # Spans over a weekend
-                "name": "over_weekend_market_inactive",
-                "date": datetime(2023, 7, 31), # Monday
+                "name": "over_weekend_query_today",
+                "date": date(2023, 7, 31), # Monday
                 "market_days_period": 2,
-                "market_active": False,
+                "query_today": True,
                 "expected_start_date": '2023-07-28',
-                "expected_end_date": "2023-07-31"
+                "expected_end_date": "2023-07-31T16:30:00-04:00"
+            },
+            {
+                # Spans over a weekend
+                "name": "over_weekend_dont_query_today",
+                "date": date(2023, 7, 31), # Monday
+                "market_days_period": 2,
+                "query_today": False,
+                "expected_start_date": '2023-07-27',
+                "expected_end_date": "2023-07-28"
             },
             {
                 # Is weekend
-                "name": "is_weekend",
-                "date": datetime(2023, 7, 30), # Monday
+                "name": "is_weekend_query_today",
+                "date": date(2023, 7, 30), # Monday
                 "market_days_period": 2,
-                "market_active": False,
+                "query_today": True,
+                "expected_start_date": '2023-07-27',
+                "expected_end_date": "2023-07-28"
+            },
+            {
+                # Is weekend
+                "name": "is_weekend_dont_query_today",
+                "date": date(2023, 7, 30), # Monday
+                "market_days_period": 2,
+                "query_today": False,
                 "expected_start_date": '2023-07-27',
                 "expected_end_date": "2023-07-28"
             },
             {
                 # Spans over a holidays
-                "name": "over_holiday_market_inactive",
-                "date": datetime(2023, 7, 7), # July 7th through July 4th
+                "name": "over_holiday_dont_query_today",
+                "date": date(2023, 7, 7), # July 7th through July 4th
                 "market_days_period": 5,
-                "market_active": False,
-                "expected_start_date": '2023-06-30',
-                "expected_end_date": "2023-07-07"
-            },
-            {
-                # Spans over week days when market is active
-                "name": "over_week_market_active",
-                "date": datetime(2023, 7, 28), # Friday
-                "market_days_period": 4,
-                "market_active": True,
-                "expected_start_date": '2023-07-24',
-                "expected_end_date": "2023-07-27"
-            },
-            {
-                # Spans over a weekend when market is active
-                "name": "over_weekend_market_active",
-                "date": datetime(2023, 7, 31), # Monday
-                "market_days_period": 2,
-                "market_active": True,
-                "expected_start_date": '2023-07-27',
-                "expected_end_date": "2023-07-28"
-            },
-            {
-                # Spans over a holidays market active
-                "name": "over_holiday_market_active",
-                "date": datetime(2023, 7, 7), # July 7th through July 4th
-                "market_days_period": 5,
-                "market_active": True,
+                "query_today": False,
                 "expected_start_date": '2023-06-29',
                 "expected_end_date": "2023-07-06"
+            },
+            {
+                # Spans over a holidays
+                "name": "over_holiday_query_today",
+                "date": date(2023, 7, 7), # July 7th through July 4th
+                "market_days_period": 5,
+                "query_today": True,
+                "expected_start_date": '2023-06-30',
+                "expected_end_date": "2023-07-07T16:30:00-04:00"
             },
         ]
 
         for test_case in test_cases:
             with self.subTest(msg=test_case["name"]):
-                mock_datetime.now.return_value = test_case["date"]
-                start_date, end_date = get_first_last_market_days(test_case["market_days_period"], market_active=test_case["market_active"])
+                mock_date.today.return_value = test_case["date"]
+                start_date, end_date = get_first_last_market_days(test_case["market_days_period"], query_today=test_case["query_today"])
                 self.assertEqual(start_date, test_case["expected_start_date"])
                 self.assertEqual(end_date, test_case["expected_end_date"])
 

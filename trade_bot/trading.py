@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime, date, time, timedelta
+import pytz
 from yahoo_fin.stock_info import tickers_sp500
 import logging
 import pandas_market_calendars as mcal
@@ -7,49 +8,42 @@ import pandas_market_calendars as mcal
 # Constants for the signal generator
 BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
 
-def get_first_last_market_days(market_days_period, market_active=False):
+def get_first_last_market_days(market_days_period, query_today=False):
     # Get the NYSE calendar
     nyse = mcal.get_calendar('NYSE')
 
-    if market_active:
-        market_offset = 1
-    else:
-        market_offset = 0
+    # Get today in datetime format
+    today = datetime.combine(date.today(), time(0, 0))
 
-    end_date = datetime.now() - timedelta(days=market_offset)
-    start_date = end_date - timedelta(days=(market_days_period)*4)  # Assuming weekends and holidays, approx n*2 should cover it
+    # Subtract 1 day if query_today=False
+    offset_day = lambda x: 0 if x else 1
+    end_date = today - timedelta(days=offset_day(query_today))
+    start_date = end_date - timedelta(days=(market_days_period)*3)  # Assuming weekends and holidays, approx n*3 should cover it
 
-    market_days = nyse.valid_days(start_date=start_date, end_date=end_date)
-
-    market_days = market_days[-market_days_period:]
-
+    # Get period start and end dates
+    market_days = nyse.valid_days(start_date=start_date, end_date=end_date)[-market_days_period:]
     period_start = market_days[0].strftime('%Y-%m-%d')
     period_end = market_days[-1].strftime('%Y-%m-%d')
 
+    # Add market close time if today is included in query
+    if query_today and today.strftime('%Y-%m-%d') == period_end:
+        period_end_datetime = datetime.strptime(period_end, '%Y-%m-%d')
+        period_end = datetime.combine(period_end_datetime, time(16, 30)).strftime('%Y-%m-%dT%H:%M:%S-04:00')
+
     return period_start, period_end
 
-def is_market_active():
+
+def is_after_alpaca_market_hours():
     """
-    Check if the market is currently active
-    We give a 15 minute buffer for the market close because Alpaca api will not allow the return of
-    market data from the past 15 minutes of a free plan
+    Returns true if the current time is after 4:16 PM (when it is safe to query for stock closing prices)
+    else returns false
     """
-    # Check if today is a weekday (0=Monday, 6=Sunday)
-    if datetime.today().weekday() >= 5:
-        return False
+    current_time = datetime.now(pytz.timezone('US/Eastern'))
 
-    # Get Current time
-    current_time = datetime.now().time()
+    # Define the cutoff time as 16:16 (4:16 PM)
+    cutoff_time = datetime.strptime("16:16", "%H:%M").time()
 
-    # Set market open and close times (+15 min for close)
-    market_open_time = datetime.strptime("09:30", "%H:%M").time()
-    market_close_time = datetime.strptime("16:15", "%H:%M").time()
-
-    # Check if the current time is within the market hours
-    if market_open_time <= current_time <= market_close_time:
-        return True
-    else:
-        return False
+    return current_time.time() >= cutoff_time
 
 
 def engulfing_candlestick_signal_generator(trade_manager, symbol):
@@ -57,7 +51,7 @@ def engulfing_candlestick_signal_generator(trade_manager, symbol):
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
     """
-    period_start, period_end = get_first_last_market_days(2, market_active=True) # If market is active, today's date is -1
+    period_start, period_end = get_first_last_market_days(2, query_today=is_after_alpaca_market_hours()) # If market is active, today's date is -1
     df = trade_manager.get_price_data(symbol, period_start, period_end)
 
     try:
