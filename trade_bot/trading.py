@@ -9,6 +9,24 @@ import pandas_market_calendars as mcal
 BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
 
 def get_first_last_market_days(market_days_period, query_today=False):
+    """
+    Returns a period of market days based on todays date
+
+    Parameters
+    ----------
+    market_days_period : int
+        Number of days a market period should span, based on the current date
+    query_today : bool
+        Specify if todays date should be included in the period, should be set to false if market is currently trading
+
+    Returns
+    -------
+    period_start
+       An RFC-3339 string representing the start date of the period
+    period_end:
+       An RFC-3339 string representing the end of the period. Time is rutruned as after 4PM (eastern) if the market is done trading for the day.
+
+    """
     # Get the NYSE calendar
     nyse = mcal.get_calendar('NYSE')
 
