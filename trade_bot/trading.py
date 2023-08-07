@@ -12,19 +12,13 @@ def get_first_last_market_days(market_days_period, query_today=False):
     """
     Returns a period of market days based on todays date
 
-    Parameters
-    ----------
-    market_days_period : int
-        Number of days a market period should span, based on the current date
-    query_today : bool
-        Specify if todays date should be included in the period, should be set to false if market is currently trading
+    Parameters:
+        market_days_period (int): Number of days a market period should span, based on the current date
+        query_today (bool): Specify if todays date should be included in the period, should be set to false if market is currently trading
 
-    Returns
-    -------
-    period_start
-       An RFC-3339 string representing the start date of the period
-    period_end:
-       An RFC-3339 string representing the end of the period. Time is rutruned as after 4PM (eastern) if the market is done trading for the day.
+    Returns:
+        period_start (str): An RFC-3339 string representing the start date of the period
+        period_end (str): An RFC-3339 string representing the end of the period. Time is rutruned as after 4PM (eastern) if the market is done trading for the day.
 
     """
     # Get the NYSE calendar
@@ -64,13 +58,46 @@ def is_after_alpaca_market_hours():
     return current_time.time() >= cutoff_time
 
 
-def engulfing_candlestick_signal_generator(trade_manager, symbol):
+def moving_average_singnal_generator(trade_manager, ticker):
+    """
+    Genarates signals based on 5 and 20 day smoving averages
+    Parameters:
+        trade_manager (TradeManager): An instance of the TradeManager class used to manage trades.
+        ticker (str): The stock ticker for which the signal is to be generated.
+
+    Returns:
+        signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
+    """
+    period_start, period_end = get_first_last_market_days(20, query_today=is_after_alpaca_market_hours()) # If market is active, today's date is -1
+    df = trade_manager.get_price_data(ticker, period_start, period_end)
+
+    # Get 5 and 20 day moving averages
+    try:
+        df['day_ma_5'] = df['close'].rolling(window=5).mean()
+        df['day_ma_20'] = df['close'].rolling(window=20).mean()
+        day_ma_5 = df.iloc[19, df.columns.get_loc('day_ma_5')]
+        day_ma_20 = df.iloc[19, df.columns.get_loc('day_ma_20')]
+    except IndexError:
+        logging.warning(f"Unable to get the required data for {ticker}")
+        return NO_CLEAR_PATTERN
+    
+    # Generate signals
+    if day_ma_5 > day_ma_20: # 5 day crosses above 20 day
+        signal = BULLISH
+    elif day_ma_5 < day_ma_20: # 5 day drops below 20 day
+        signal = BEARISH
+    else:
+        signal = NO_CLEAR_PATTERN
+    
+    return signal
+
+def engulfing_candlestick_signal_generator(trade_manager, ticker):
     """
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
     """
     period_start, period_end = get_first_last_market_days(2, query_today=is_after_alpaca_market_hours()) # If market is active, today's date is -1
-    df = trade_manager.get_price_data(symbol, period_start, period_end)
+    df = trade_manager.get_price_data(ticker, period_start, period_end)
 
     try:
         open = df.iloc[1, df.columns.get_loc('open')]
@@ -78,7 +105,7 @@ def engulfing_candlestick_signal_generator(trade_manager, symbol):
         previous_open = df.iloc[0, df.columns.get_loc('open')]
         previous_close = df.iloc[0, df.columns.get_loc('close')]
     except IndexError:
-        logging.warning(f"Unable to get the required data for {symbol}")
+        logging.warning(f"Unable to get the required data for {ticker}")
         return NO_CLEAR_PATTERN
 
     if (
@@ -111,14 +138,14 @@ def make_orders(trade_manager):
     logging.info("Making orders...")
     for ticker in tickers_sp500()[0:10]:
         ticker = ticker.replace('-', '.')
-        signal = engulfing_candlestick_signal_generator(trade_manager, ticker)
+        signal = moving_average_singnal_generator(trade_manager, ticker)
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
 
     owned_tickers = trade_manager.get_owned_tickers()
     for ticker in owned_tickers:
-        signal = engulfing_candlestick_signal_generator(trade_manager, ticker)
+        signal = moving_average_singnal_generator(trade_manager, ticker)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")

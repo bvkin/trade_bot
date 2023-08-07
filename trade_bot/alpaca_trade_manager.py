@@ -19,7 +19,7 @@ class AlpacaTradeManager:
         Returns a pandas dataframe of the price data for last two days of a given ticker.
         """
         # return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment='raw').df
-        return self.api.get_bars(ticker, TimeFrame.Hour, period_start, period_end, adjustment='raw').df
+        return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment='raw').df
 
 
     def buy_stock(self, ticker):

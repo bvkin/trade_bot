@@ -1,10 +1,11 @@
 from datetime import date, datetime
+import logging
 import unittest
 from pandas import DataFrame
 import pytz
 from unittest.mock import patch, Mock
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
-from trade_bot.trading import engulfing_candlestick_signal_generator, get_first_last_market_days, is_after_alpaca_market_hours
+from trade_bot.trading import engulfing_candlestick_signal_generator, moving_average_singnal_generator, get_first_last_market_days, is_after_alpaca_market_hours
 from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
 
 
@@ -13,6 +14,45 @@ class TestTrading(unittest.TestCase):
         self.trade_manager = AlpacaTradeManager("api_key", "secret_key")
         self.trade_manager.get_price_data = Mock()
 
+    def test_moving_average_singnal_generator(self):
+        test_cases = [
+            {
+                "name": "bullish",
+                "description": "5_day_ma == 117, 20_day_ma == 109.5",
+                "close_prices": [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119],
+                "expected": BULLISH
+            },
+            {
+                "name": "bearish",
+                "description": "5_day_ma == 103, 20_day_ma == 110.5",
+                "close_prices": [120, 119, 118, 117, 116, 115, 114, 113, 112, 111, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101],
+                "expected": BEARISH
+            },
+            {
+                "name": "bearish",
+                "description": "5_day_ma == 100, 20_day_ma == 100",
+                "close_prices": [100] * 20,
+                "expected": NO_CLEAR_PATTERN
+            },
+            {
+                "name": "index_error",
+                "description": "trigger index out of bounds exception",
+                "close_prices": [100] * 4,
+                "expected": NO_CLEAR_PATTERN
+            }
+        ]
+
+        # Supress WARNING for exception cases
+        logging.disable(logging.WARNING)
+
+        for test_case in test_cases:
+            with self.subTest(msg=f'{test_case["name"]}: {test_case["description"]}'):
+                self.trade_manager.get_price_data.return_value = DataFrame({"close" : test_case["close_prices"]})
+                self.assertEqual(moving_average_singnal_generator(self.trade_manager, "TEST"), test_case["expected"])
+
+        # Re-enable WARNING
+        logging.disable(logging.WARNING)
+    
     @patch('trade_bot.trading.get_first_last_market_days', return_value=("2023-07-25", "2023-07-26"))
     def test_engulfing_candlestick_signal_generator(self, mock_get_first_last_market_days):
         test_cases = [
