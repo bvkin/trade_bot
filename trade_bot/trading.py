@@ -36,14 +36,10 @@ def get_first_last_market_days(market_days_period):
     start_date = end_date - timedelta(days=(market_days_period)*3)  # Assuming weekends and holidays, approx n*3 should cover it
 
     # Get period start and end dates
+    close_time_eastern = lambda x: datetime.combine(x, time(16, 30)).strftime('%Y-%m-%dT%H:%M:%S-04:00')
     market_days = nyse.valid_days(start_date=start_date, end_date=end_date)[-market_days_period:]
-    period_start = market_days[0].strftime('%Y-%m-%d')
-    period_end = market_days[-1].strftime('%Y-%m-%d')
-
-    # Add market close time if today is included in query
-    if query_today and today.strftime('%Y-%m-%d') == period_end:
-        period_end_datetime = datetime.strptime(period_end, '%Y-%m-%d')
-        period_end = datetime.combine(period_end_datetime, time(16, 30)).strftime('%Y-%m-%dT%H:%M:%S-04:00')
+    period_start = close_time_eastern(market_days[0])
+    period_end = close_time_eastern(market_days[-1])
 
     return period_start, period_end
 
