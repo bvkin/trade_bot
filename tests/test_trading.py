@@ -5,7 +5,7 @@ from pandas import DataFrame
 import pytz
 from unittest.mock import patch, Mock
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
-from trade_bot.trading import engulfing_candlestick_signal_generator, moving_average_singnal_generator, get_first_last_market_days, is_after_alpaca_market_hours
+from trade_bot.trading import engulfing_candlestick_signal_generator, moving_average_singnal_generator, get_first_last_market_days, alpaca_can_query_today_closing_price
 from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
 
 
@@ -100,7 +100,7 @@ class TestTrading(unittest.TestCase):
 
 
     @patch('trade_bot.trading.datetime')
-    def test_is_after_alpaca_market_hours(self, mock_datetime):
+    def test_alpaca_can_query_today_closing_price(self, mock_datetime):
         eastern = pytz.timezone('US/Eastern')
         test_cases = [
             {
@@ -124,11 +124,12 @@ class TestTrading(unittest.TestCase):
             with self.subTest(msg=test_case["name"]):
                 mock_datetime.now.return_value = test_case["now"]
                 mock_datetime.strptime.return_value = datetime.strptime("16:16", "%H:%M")
-                self.assertEqual(is_after_alpaca_market_hours(), test_case["expected"])
+                self.assertEqual(alpaca_can_query_today_closing_price(), test_case["expected"])
 
 
+    @patch('trade_bot.trading.alpaca_can_query_today_closing_price')
     @patch('trade_bot.trading.date')
-    def test_get_first_last_market_days(self, mock_date):
+    def test_get_first_last_market_days(self, mock_date, mock_alpaca_can_query_today_closing_price):
         test_cases = [
             {
                 # Spans over week days
@@ -207,7 +208,8 @@ class TestTrading(unittest.TestCase):
         for test_case in test_cases:
             with self.subTest(msg=test_case["name"]):
                 mock_date.today.return_value = test_case["date"]
-                start_date, end_date = get_first_last_market_days(test_case["market_days_period"], query_today=test_case["query_today"])
+                mock_alpaca_can_query_today_closing_price.return_value = test_case["query_today"]
+                start_date, end_date = get_first_last_market_days(test_case["market_days_period"])
                 self.assertEqual(start_date, test_case["expected_start_date"])
                 self.assertEqual(end_date, test_case["expected_end_date"])
 

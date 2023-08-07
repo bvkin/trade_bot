@@ -8,19 +8,22 @@ import pandas_market_calendars as mcal
 # Constants for the signal generator
 BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
 
-def get_first_last_market_days(market_days_period, query_today=False):
+def get_first_last_market_days(market_days_period):
     """
     Returns a period of market days based on todays date
 
     Parameters:
         market_days_period (int): Number of days a market period should span, based on the current date
-        query_today (bool): Specify if todays date should be included in the period, should be set to false if market is currently trading
 
     Returns:
         period_start (str): An RFC-3339 string representing the start date of the period
         period_end (str): An RFC-3339 string representing the end of the period. Time is rutruned as after 4PM (eastern) if the market is done trading for the day.
 
     """
+
+    # Check if it is safe to include today in time frame
+    query_today = alpaca_can_query_today_closing_price()
+
     # Get the NYSE calendar
     nyse = mcal.get_calendar('NYSE')
 
@@ -45,17 +48,22 @@ def get_first_last_market_days(market_days_period, query_today=False):
     return period_start, period_end
 
 
-def is_after_alpaca_market_hours():
+def alpaca_can_query_today_closing_price():
     """
-    Returns true if the current time is after 4:16 PM (when it is safe to query for stock closing prices)
-    else returns false
+    Checks if the closing price of the day is safe to query on alpaca api 
+
+    Returns:
+        query_today (bool): True if the current time is after 4:16 PM (can query for todays closing price on alpaca free tier)
+            else False
     """
     current_time = datetime.now(pytz.timezone('US/Eastern'))
 
     # Define the cutoff time as 16:16 (4:16 PM)
     cutoff_time = datetime.strptime("16:16", "%H:%M").time()
 
-    return current_time.time() >= cutoff_time
+    query_today = current_time.time() >= cutoff_time
+
+    return query_today
 
 
 def moving_average_singnal_generator(trade_manager, ticker):
@@ -68,7 +76,7 @@ def moving_average_singnal_generator(trade_manager, ticker):
     Returns:
         signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
     """
-    period_start, period_end = get_first_last_market_days(20, query_today=is_after_alpaca_market_hours()) # If market is active, today's date is -1
+    period_start, period_end = get_first_last_market_days(20) # If market is active, today's date is -1
     df = trade_manager.get_price_data(ticker, period_start, period_end)
 
     # Get 5 and 20 day moving averages
@@ -96,7 +104,7 @@ def engulfing_candlestick_signal_generator(trade_manager, ticker):
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
     """
-    period_start, period_end = get_first_last_market_days(2, query_today=is_after_alpaca_market_hours()) # If market is active, today's date is -1
+    period_start, period_end = get_first_last_market_days(2) # If market is active, today's date is -1
     df = trade_manager.get_price_data(ticker, period_start, period_end)
 
     try:
