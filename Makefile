@@ -1,4 +1,5 @@
 .PHONY: test
 
 test:
-	python -m unittest discover tests
+	coverage run -m unittest discover tests
+	coverage report -m --fail-under=70
