@@ -5,9 +5,9 @@ class AlpacaTradeManager:
     def __init__(self, alpaca_api_key: str, alpaca_secret_key: str, base_url: str = "https://paper-api.alpaca.markets", api_version: str = 'v2', api=None):
         if api is None:
             self.api = REST(
-                alpaca_api_key, 
+                alpaca_api_key,
                 alpaca_secret_key,
-                base_url,  
+                base_url,
                 api_version
             )
         else:
@@ -25,14 +25,29 @@ class AlpacaTradeManager:
     def buy_stock(self, ticker):
         """
         Buys 5% of the buying power of the account for a given .
+        Limits losses at 10% of original purchase value .
+
+        CHANGES...
+        -> Notional Order Type
+        -> Reason for Change
+        -> Result in Effect
+        -> Further Considerations
         """
         buying_power = float(self.api.get_account().buying_power)
-        purchase_amnt = round(buying_power * 0.05, 2)
-        share_price = si.get_quote_table(ticker)['Quote Price']
-        shares = int(purchase_amnt / share_price)
+        #purchase_amnt = round(buying_power * 0.05, 2)
+        value = round(buying_power * 0.05)
+        # share_price = si.get_quote_table(ticker)['Quote Price']
+        # shares = int(purchase_amnt / share_price)
+        floor = round(value * 0.9)
+
         self.api.submit_order(
             symbol=ticker,
-            qty=shares,
+            notional=value,
+            stop_loss=dict(
+              stop_price=floor,
+              limit_price=floor,
+            ),
+            #qty=shares,
             side='buy',
             type='market',
             time_in_force='gtc'
