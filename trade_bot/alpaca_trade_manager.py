@@ -28,8 +28,8 @@ class AlpacaTradeManager:
         Limits losses at 10% of original purchase value .
 
         CHANGES...
-        -> Notional Order Type
-        -> Reason for Change
+        -> Notional Order Type, Sell Limit
+        -> Reason for Change(s)
         -> Result in Effect
         -> Further Considerations
         """
