@@ -24,7 +24,7 @@ class AlpacaTradeManager:
 
     def buy_stock(self, ticker):
         """
-        Buys 5% of the buying power of the account for a given .
+        Buys 5% of the buying power of the account for a given ticker.
         Limits losses at 10% of original purchase value .
 
         CHANGES...
