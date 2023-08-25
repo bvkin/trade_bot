@@ -34,6 +34,16 @@ resource "aws_ecs_task_definition" "this" {
       "image" = "${var.ecr_repo}:${var.image_tag}",
       "portMappings" = [],
       "environment" = [],
+      "secrets" = [
+        {
+          name      = "ALPACA_API_KEY",
+          valueFrom = aws_ssm_parameter.alpaca_api_key.arn
+        },
+        {
+          name      = "ALPACA_SECRET_KEY",
+          valueFrom = aws_ssm_parameter.alpaca_secret_key.arn
+        }
+      ]
       "logConfiguration" = {
         "logDriver" = "awslogs"
         "options" = {
@@ -61,6 +71,33 @@ resource "aws_security_group_rule" "egress_all" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.ecs_service.id
+}
+
+#######################
+### Parameter Store ###
+#######################
+resource "aws_ssm_parameter" "alpaca_api_key" {
+  name  = "/${var.name}/alpaca_api_key"
+  type  = "SecureString"
+  value = "this"
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
+
+resource "aws_ssm_parameter" "alpaca_secret_key" {
+  name  = "/${var.name}/alpaca_secret_key"
+  type  = "SecureString"
+  value = "this"
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
 }
 
 #############
@@ -108,4 +145,31 @@ data "aws_iam_policy_document" "task_role" {
       identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
+}
+
+# Param Store
+resource "aws_iam_policy" "param_store" {
+  name   = "${var.name}_param_store"
+  path   = "/"
+  policy = data.aws_iam_policy_document.param_store.json
+}
+
+data "aws_iam_policy_document" "param_store" {
+  statement {
+    sid = "ParamStoreAccess"
+    actions = [
+      "ssm:GetParameters",
+      "secretsmanager:GetSecretValue",
+      "kms:Decrypt"
+    ]
+    resources = [
+      aws_ssm_parameter.alpaca_api_key.arn,
+      aws_ssm_parameter.alpaca_secret_key.arn
+    ]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "param_store" {
+  role       = aws_iam_role.task_execution.name
+  policy_arn = aws_iam_policy.param_store.arn
 }
