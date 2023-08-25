@@ -35,8 +35,41 @@ jobs:
       steps:
         - uses: actions/checkout@v2
 
-        - name: Install make
-          run: sudo apt-get install -y make
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v3
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
 
-        - name: Build docker image
-          run: make build
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1.7.0
+          with:
+            mask-password: true
+
+        - name: Get Commit Hash
+          id: commit-hash
+          run: |
+            echo "commit-hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+
+        - name: Build and push Docker image
+          uses: docker/build-push-action@v4.1.1
+          with:
+            context: .
+            file: ./docker/Dockerfile
+            tags: ${{ steps.login-ecr.outputs.registry }}/analytics:${{ steps.commit-hash.outputs.commit-hash }},${{ steps.login-ecr.outputs.registry }}/analytics:latest
+            push: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Deploy ECS Service
+      run: |
+        aws ecs update-service --region $AWS_REGION --force-new-deployment --cluster $ECS_CLUSTER_NAME  --service $ECS_SERVICE_NAME
+      env:
+        AWS_REGION: us-east-1
+        ECS_CLUSTER_NAME: trade_bot
+        ECS_SERVICE_NAME: trade_bot
