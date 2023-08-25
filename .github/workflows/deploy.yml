@@ -58,7 +58,7 @@ jobs:
           with:
             context: .
             file: ./docker/Dockerfile
-            tags: ${{ steps.login-ecr.outputs.registry }}/analytics:${{ steps.commit-hash.outputs.commit-hash }},${{ steps.login-ecr.outputs.registry }}/analytics:latest
+            tags: ${{ steps.login-ecr.outputs.registry }}/trade_bot:${{ steps.commit-hash.outputs.commit-hash }},${{ steps.login-ecr.outputs.registry }}/trade_bot:latest
             push: true
 
   deploy:
