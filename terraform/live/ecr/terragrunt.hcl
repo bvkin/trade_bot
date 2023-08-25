@@ -18,7 +18,8 @@ terraform {
 }
 
 inputs = {
-    repository_name        = local.env.name
+    repository_name                 = local.env.name
+    repository_image_tag_mutability = "MUTABLE"
     repository_lifecycle_policy = jsonencode({
       rules = [
         {

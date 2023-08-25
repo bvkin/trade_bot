@@ -12,6 +12,7 @@ resource "aws_ecs_service" "this" {
   task_definition = "${aws_ecs_task_definition.this.family}:${aws_ecs_task_definition.this.revision}"
 
   network_configuration {
+    assign_public_ip = true
     security_groups = [aws_security_group.ecs_service.id]
     subnets         = var.subnet_ids
   }
