@@ -140,7 +140,7 @@ def make_orders(trade_manager):
     Makes sell orders for all owned stocks bearish signal.
     """
     logging.info("Making orders...")
-    for ticker in tickers_sp500()[0:10]:
+    for ticker in tickers_sp500():
         ticker = ticker.replace('-', '.')
         signal = moving_average_singnal_generator(trade_manager, ticker)
         if signal == BULLISH:
