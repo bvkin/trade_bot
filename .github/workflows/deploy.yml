@@ -44,7 +44,7 @@ jobs:
 
         - name: Login to Amazon ECR
           id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v1.7.0
+          uses: aws-actions/amazon-ecr-login@v1
           with:
             mask-password: true
 
@@ -54,12 +54,15 @@ jobs:
             echo "commit-hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
 
         - name: Build and push Docker image
-          uses: docker/build-push-action@v4.1.1
+          uses: docker/build-push-action@v4
           with:
             context: .
             file: ./docker/Dockerfile
             tags: ${{ steps.login-ecr.outputs.registry }}/trade_bot:${{ steps.commit-hash.outputs.commit-hash }},${{ steps.login-ecr.outputs.registry }}/trade_bot:latest
             push: true
+            pull: true
+            cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/trade_bot:dockercache
+            cache-to: image-manifest=true,type=registry,ref=${{ steps.login-ecr.outputs.registry }}/trade_bot:dockercache
 
         - name: Deploy ECS Service
           run: |
