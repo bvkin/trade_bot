@@ -137,7 +137,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 28), # Friday
                 "market_days_period": 5,
                 "query_today": False,
-                "expected_start_date": '2023-07-21T16:30:00-04:00',
+                "expected_start_date": '2023-07-21T00:00:00-04:00',
                 "expected_end_date": "2023-07-27T16:30:00-04:00"
             },
             {
@@ -146,7 +146,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 28), # Friday
                 "market_days_period": 5,
                 "query_today": True,
-                "expected_start_date": '2023-07-24T16:30:00-04:00',
+                "expected_start_date": '2023-07-24T00:00:00-04:00',
                 "expected_end_date": "2023-07-28T16:30:00-04:00"
             },
             {
@@ -155,7 +155,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 31), # Monday
                 "market_days_period": 2,
                 "query_today": True,
-                "expected_start_date": '2023-07-28T16:30:00-04:00',
+                "expected_start_date": '2023-07-28T00:00:00-04:00',
                 "expected_end_date": "2023-07-31T16:30:00-04:00"
             },
             {
@@ -164,7 +164,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 31), # Monday
                 "market_days_period": 2,
                 "query_today": False,
-                "expected_start_date": '2023-07-27T16:30:00-04:00',
+                "expected_start_date": '2023-07-27T00:00:00-04:00',
                 "expected_end_date": "2023-07-28T16:30:00-04:00"
             },
             {
@@ -173,7 +173,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 30), # Monday
                 "market_days_period": 2,
                 "query_today": True,
-                "expected_start_date": '2023-07-27T16:30:00-04:00',
+                "expected_start_date": '2023-07-27T00:00:00-04:00',
                 "expected_end_date": "2023-07-28T16:30:00-04:00"
             },
             {
@@ -182,7 +182,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 30), # Monday
                 "market_days_period": 2,
                 "query_today": False,
-                "expected_start_date": '2023-07-27T16:30:00-04:00',
+                "expected_start_date": '2023-07-27T00:00:00-04:00',
                 "expected_end_date": "2023-07-28T16:30:00-04:00"
             },
             {
@@ -191,7 +191,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 7), # July 7th through July 4th
                 "market_days_period": 5,
                 "query_today": False,
-                "expected_start_date": '2023-06-29T16:30:00-04:00',
+                "expected_start_date": '2023-06-29T00:00:00-04:00',
                 "expected_end_date": "2023-07-06T16:30:00-04:00"
             },
             {
@@ -200,7 +200,7 @@ class TestTrading(unittest.TestCase):
                 "date": date(2023, 7, 7), # July 7th through July 4th
                 "market_days_period": 5,
                 "query_today": True,
-                "expected_start_date": '2023-06-30T16:30:00-04:00',
+                "expected_start_date": '2023-06-30T00:00:00-04:00',
                 "expected_end_date": "2023-07-07T16:30:00-04:00"
             },
         ]
