@@ -1,3 +1,7 @@
+# Ignore FutureWarning for frame.append method in yahoo_fin module until new version release
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="yahoo_fin")
+
 from datetime import datetime, date, time, timedelta
 import pytz
 from yahoo_fin.stock_info import tickers_sp500
@@ -141,6 +145,7 @@ def make_orders(trade_manager):
     logging.info("Making orders...")
     for ticker in tickers_sp500():
         ticker = ticker.replace('-', '.')
+        logging.info("Evaluating " + ticker + " for buy")
         signal = moving_average_singnal_generator(trade_manager, ticker)
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
@@ -148,6 +153,7 @@ def make_orders(trade_manager):
 
     owned_tickers = trade_manager.get_owned_tickers()
     for ticker in owned_tickers:
+        logging.info("Evaluating " + ticker + " for sell")
         signal = moving_average_singnal_generator(trade_manager, ticker)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
