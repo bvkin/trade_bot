@@ -18,26 +18,26 @@ class TestTrading(unittest.TestCase):
         test_cases = [
             {
                 "name": "bullish",
-                "description": "5_day_ma == 117, 20_day_ma == 109.5",
-                "close_prices": [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119],
+                "description": "5_day_ma == 100.4, 20_day_ma == 100.1, prev_day_ma_5 == 99.8, prev_day_ma_20 == 99.95",
+                "close_prices": [100 for _ in range(16)] + [99, 99, 100, 101, 103],
                 "expected": BULLISH
             },
             {
                 "name": "bearish",
                 "description": "5_day_ma == 103, 20_day_ma == 110.5",
-                "close_prices": [120, 119, 118, 117, 116, 115, 114, 113, 112, 111, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101],
+                "close_prices": [100 for _ in range(16)] + [102, 101, 100, 99, 97],
                 "expected": BEARISH
             },
             {
                 "name": "bearish",
                 "description": "5_day_ma == 100, 20_day_ma == 100",
-                "close_prices": [100] * 20,
+                "close_prices": [100 for _ in range(21)] ,
                 "expected": NO_CLEAR_PATTERN
             },
             {
                 "name": "index_error",
                 "description": "trigger index out of bounds exception",
-                "close_prices": [100] * 4,
+                "close_prices": [100 for _ in range(21)],
                 "expected": NO_CLEAR_PATTERN
             }
         ]
