@@ -75,23 +75,26 @@ def moving_average_singnal_generator(trade_manager, ticker):
     Returns:
         signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
     """
-    period_start, period_end = get_first_last_market_days(20) # If market is active, today's date is -1
+    # 21 days to calculate 20 day ma of the current and previous day
+    period_start, period_end = get_first_last_market_days(21)
     df = trade_manager.get_price_data(ticker, period_start, period_end)
 
     # Get 5 and 20 day moving averages
     try:
         df['day_ma_5'] = df['close'].rolling(window=5).mean()
         df['day_ma_20'] = df['close'].rolling(window=20).mean()
-        day_ma_5 = df.iloc[19, df.columns.get_loc('day_ma_5')]
-        day_ma_20 = df.iloc[19, df.columns.get_loc('day_ma_20')]
+        day_ma_5 = df.iloc[20, df.columns.get_loc('day_ma_5')]
+        prev_day_ma_5 = df.iloc[19, df.columns.get_loc('day_ma_5')]
+        day_ma_20 = df.iloc[20, df.columns.get_loc('day_ma_20')]
+        prev_day_ma_20 = df.iloc[19, df.columns.get_loc('day_ma_20')]
     except IndexError:
         logging.warning(f"Unable to get the required data for {ticker}")
         return NO_CLEAR_PATTERN
     
     # Generate signals
-    if day_ma_5 > day_ma_20: # 5 day crosses above 20 day
+    if day_ma_5 > day_ma_20 and prev_day_ma_5 <= prev_day_ma_20: # 5 day crosses above 20 day
         signal = BULLISH
-    elif day_ma_5 < day_ma_20: # 5 day drops below 20 day
+    elif day_ma_5 < day_ma_20 and prev_day_ma_5 >= prev_day_ma_20: # 5 day drops below 20 day
         signal = BEARISH
     else:
         signal = NO_CLEAR_PATTERN
