@@ -22,7 +22,6 @@ if __name__ == '__main__':
 
     aws_region = os.getenv('AWS_DEFAULT_REGION')
     sns_topic_arn = os.getenv('AWS_SNS_TOPIC_ARN')
-
     sns_client = boto3.client("sns", region_name=aws_region)
 
     logging.info("Running order scheduler...")

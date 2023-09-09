@@ -20,7 +20,11 @@ class TestAlpacaTradeManager(unittest.TestCase):
         """
         Tests the 'buy_stock' method of the 'AlpacaTradeManager' class.
         """
-        self.mock_api.get_account = Mock(return_value=Mock(buying_power="1000.00"))
+        mock_buying_power = 1000
+        purchase_amnt = round(mock_buying_power * 0.05, 2)
+        floor = round(purchase_amnt * 0.9, 2)
+
+        self.mock_api.get_account = Mock(return_value=Mock(buying_power=str(mock_buying_power)))
         self.mock_api.submit_order = Mock()
 
         # Call the function we're testing
@@ -28,7 +32,15 @@ class TestAlpacaTradeManager(unittest.TestCase):
 
         # Check for expected arguments
         self.mock_api.submit_order.assert_called_with(
-            symbol="TEST", qty=5, side='buy', type='market', time_in_force='gtc')
+            symbol="TEST",
+            notional=purchase_amnt,
+            stop_loss=dict(
+              stop_price=floor
+            ),
+            side='buy',
+            type='market',
+            time_in_force='gtc'
+        )
         
 
     @patch('trade_bot.alpaca_trade_manager.AlpacaTradeManager.get_stock_qty', return_value=10)
