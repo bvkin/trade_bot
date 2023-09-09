@@ -47,7 +47,6 @@ class AlpacaTradeManager:
               stop_price=floor,
               limit_price=floor,
             ),
-            #qty=shares,
             side='buy',
             type='market',
             time_in_force='gtc'
