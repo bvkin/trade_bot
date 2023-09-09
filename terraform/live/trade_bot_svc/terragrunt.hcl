@@ -35,6 +35,13 @@ dependency "ecs_cluster" {
   }
 }
 
+dependency "sns" {
+  config_path = "${path_relative_from_include("root")}/sns"
+  mock_outputs = {
+    topic_arn = "arn:aws:sns:us-east-1:123456789012:trade_bot_signals"
+  }
+}
+
 terraform {
   source = "${path_relative_from_include("root")}/../modules//trade_bot_svc"
 }
@@ -45,4 +52,5 @@ inputs = {
     subnet_ids = dependency.vpc.outputs.public_subnets
     ecr_repo = dependency.ecr.outputs.repository_url
     ecs_cluster_id = dependency.ecs_cluster.outputs.cluster_id
+    sns_topic_arn = dependency.sns.outputs.topic_arn
 }

@@ -140,11 +140,12 @@ def engulfing_candlestick_signal_generator(trade_manager, ticker):
         return NO_CLEAR_PATTERN
 
 
-def make_orders(trade_manager):
+def make_orders(trade_manager, sns_client, sns_topic_arn):
     """
     Makes buy orders for all stocks in the S&P 500 given a bullish signal.
     Makes sell orders for all owned stocks bearish signal.
     """
+    purchased_tickers, sold_tickers = [], []
     logging.info("Making orders...")
     for ticker in tickers_sp500():
         ticker = ticker.replace('-', '.')
@@ -153,6 +154,10 @@ def make_orders(trade_manager):
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
+            purchased_tickers.append(ticker)
+
+    if purchased_tickers:
+        sns_client.publish(Message=f'Trade Bot Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
 
     owned_tickers = trade_manager.get_owned_tickers()
     for ticker in owned_tickers:
@@ -161,3 +166,7 @@ def make_orders(trade_manager):
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
+            sold_tickers.append(ticker)
+
+    if sold_tickers:
+        sns_client.publish(Message=f'Trade Bot Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
