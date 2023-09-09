@@ -18,7 +18,6 @@ if __name__ == '__main__':
     api_key = os.getenv('ALPACA_API_KEY')
     secret_key = os.getenv('ALPACA_SECRET_KEY')
     trade_manager = AlpacaTradeManager(alpaca_api_key=api_key, alpaca_secret_key=secret_key)
-
     logging.info("Running order scheduler...")
     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     scheduler = BlockingScheduler()
