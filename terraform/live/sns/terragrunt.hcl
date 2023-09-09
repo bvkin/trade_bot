@@ -21,9 +21,20 @@ inputs = {
   name  = "${local.env.name}_signals"
 
   subscriptions = {
-    sms = {
-      protocol = "sms"
-      endpoint = "+19788285539"
+    email = {
+      protocol = "email"
+      endpoint = "bkincaid1@proton.me"
     }
   }
+
+  topic_policy_statements = {
+    pub = {
+        actions = ["sns:Publish"]
+
+        principals = [{
+          type        = "AWS"
+          identifiers = ["*"]
+        }]
+      }
+    }
 }

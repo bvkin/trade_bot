@@ -40,3 +40,8 @@ variable "ecs_memory" {
   type        = number
   default     = 512
 }
+
+variable "sns_topic_arn" {
+  description = "SNS topic arn for publishing messages"
+  type = string
+}
