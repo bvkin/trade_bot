@@ -1,5 +1,6 @@
 from alpaca_trade_manager import AlpacaTradeManager
 from apscheduler.schedulers.blocking import BlockingScheduler
+import boto3
 import datetime
 from dotenv import load_dotenv
 import logging
@@ -19,8 +20,14 @@ if __name__ == '__main__':
     secret_key = os.getenv('ALPACA_SECRET_KEY')
     trade_manager = AlpacaTradeManager(alpaca_api_key=api_key, alpaca_secret_key=secret_key)
 
-    logging.info("Running order scheduler...")
-    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    scheduler = BlockingScheduler()
-    scheduler.add_job(make_orders, 'cron', args=[trade_manager], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
-    scheduler.start()
+    aws_region = os.getenv('AWS_DEFAULT_REGION')
+    sns_topic_arn = os.getenv('AWS_SNS_TOPIC_ARN')
+
+    sns_client = boto3.client("sns", region_name=aws_region)
+    sns_client.publish(Message="Good news everyone!", TopicArn=sns_topic_arn)
+
+    # logging.info("Running order scheduler...")
+    # current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # scheduler = BlockingScheduler()
+    # scheduler.add_job(make_orders, 'cron', args=[trade_manager], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
+    # scheduler.start()
