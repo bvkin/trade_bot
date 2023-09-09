@@ -34,7 +34,12 @@ resource "aws_ecs_task_definition" "this" {
       "name" = var.name,
       "image" = "${var.ecr_repo}:${var.image_tag}",
       "portMappings" = [],
-      "environment" = [],
+      "environment" = [
+        {
+          name = "AWS_SNS_TOPIC_ARN"
+          value = var.sns_topic_arn
+        }
+      ],
       "secrets" = [
         {
           name      = "ALPACA_API_KEY",
