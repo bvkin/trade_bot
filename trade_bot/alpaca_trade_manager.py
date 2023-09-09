@@ -26,26 +26,16 @@ class AlpacaTradeManager:
         """
         Buys 5% of the buying power of the account for a given ticker.
         Limits losses at 10% of original purchase value.
-
-        CHANGES...
-        -> Notional Order Type, Sell Limit
-        -> Reason for Change(s)
-        -> Result in Effect
-        -> Further Considerations
         """
         buying_power = float(self.api.get_account().buying_power)
-        #purchase_amnt = round(buying_power * 0.05, 2)
-        value = round(buying_power * 0.05, 2)
-        # share_price = si.get_quote_table(ticker)['Quote Price']
-        # shares = int(purchase_amnt / share_price)
-        floor = round(value * 0.9, 2)
+        purchase_amnt = round(buying_power * 0.05, 2)
+        floor = round(purchase_amnt * 0.9, 2)
 
         self.api.submit_order(
             symbol=ticker,
-            notional=value,
+            notional=purchase_amnt,
             stop_loss=dict(
-              stop_price=floor,
-              limit_price=floor,
+              stop_price=floor
             ),
             side='buy',
             type='market',
