@@ -39,7 +39,7 @@ class AlpacaTradeManager:
             ),
             side='buy',
             type='market',
-            time_in_force='gtc'
+            time_in_force='day'
         )
 
 
