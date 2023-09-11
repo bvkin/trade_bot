@@ -160,11 +160,63 @@ The init() method initializes the AlpacaTradeManager object. The api attribute i
 =======
 ```
 
+<<<<<<< HEAD
+=======
+### Docs
+
+#### main.py
+This file is a Python script that uses the Alpaca Trade Manager and APScheduler libraries to place orders on the stock market.
+
+The first few lines of the script set up the logging configuration. The logging.basicConfig() function sets the global logging level to INFO, and the apscheduler_logger.setLevel(logging.WARNING) function sets the logging level for the apscheduler.scheduler logger to WARNING.
+
+The next few lines of code load the environment variables for the ALPACA_API_KEY, ALPACA_SECRET_KEY, AWS_DEFAULT_REGION, and AWS_SNS_TOPIC_ARN environment variables. These environment variables are used to connect to the Alpaca API, the AWS SNS service, and the AWS SNS topic.
+
+The make_orders() function is used to place orders on the stock market. This function takes three arguments: the AlpacaTradeManager object, the SNS client object, and the SNS topic ARN. The make_orders() function uses the AlpacaTradeManager object to get the current market data and then places orders based on the trading strategy.
+
+The get_first_last_market_days() function is used to get the first and last market days of the current week. This function is used by the scheduler.add_job() function to schedule the make_orders() function to run every Monday morning at 9:00 AM Eastern Time.
+
+The scheduler.add_job() function schedules the make_orders() function to run every Monday morning at 9:00 AM Eastern Time. The scheduler.add_job() function takes four arguments: the function to run, the schedule, the arguments to pass to the function, and the start date.
+
+The scheduler.start() function starts the scheduler.
+
+The __name__ == '__main__' statement ensures that the script only runs when it is executed as a script, not when it is imported as a module.
+
+#### trading.py
+This file contains a simple trading bot that generates buy and sell signals for the S&P 500 stocks.
+
+The bot uses two trading strategies:
+
+* **Moving average crossover strategy:** This strategy buys a stock when the 5-day moving average crosses above the 20-day moving average and sells the stock when the 5-day moving average crosses below the 20-day moving average.
+* **Engulfing candlestick pattern strategy:** This strategy buys a stock when the open price of a day is lower than the previous day's close price and the close price of the day is higher than the previous day's open price.
+
+The bot makes orders through the `TradeManager` class, which abstracts away the details of interacting with a brokerage account.
+
+To use the bot, you will need to create a `TradeManager` instance and pass it to the `make_orders()` function. The `make_orders()` function will generate buy and sell signals for all the stocks in the S&P 500 and place the appropriate orders.
+
+Here is an example of how to use the bot:
+
+```python
+import trade_bot
+
+# Create a TradeManager instance
+trade_manager = trade_bot.TradeManager()
+
+# Generate buy and sell signals
+trade_bot.make_orders(trade_manager)
+
+
+The `make_orders()` function will print out the tickers of the stocks that were bought and sold. It will also publish a message to an SNS topic with the list of stocks that were traded.
+```
+
+>>>>>>> bab243f (readme first draft)
 #### alpaca_trade_manager.py
 This file defines a class called AlpacaTradeManager. This class provides methods to interact with the Alpaca API, such as getting price data, buying stocks, and selling stocks.
 
 The __init__() method initializes the AlpacaTradeManager object. The api attribute is a REST object that is used to interact with the Alpaca API.
+<<<<<<< HEAD
 >>>>>>> a5ed8e9 (readme first draft)
+=======
+>>>>>>> bab243f (readme first draft)
 
 The get_price_data() method returns a pandas dataframe of the price data for the last two days of a given ticker.
 
@@ -176,9 +228,12 @@ The get_stock_qty() method returns the quantity of a stock owned.
 
 The get_owned_tickers() method returns a list of tickers currently held in account.
 <<<<<<< HEAD
+<<<<<<< HEAD
 Tests
 
 =======
+=======
+>>>>>>> bab243f (readme first draft)
 
 ### 
 
