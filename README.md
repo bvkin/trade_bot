@@ -15,6 +15,7 @@ This project uses the Alpaca Api to manage trades in the Alpaca brokerage.
 ALPACA_API_KEY="your_alpaca_api_key"
 ALPACA_SECRET_KEY="your_alpaca_secret_key"
 
+<<<<<<< HEAD
     Run the bot
 
 python trade_bot/main.py
@@ -78,6 +79,11 @@ The engulfing candle should be large in size. The engulfing candle should have a
 ### File Specification
 #### main.py
 
+=======
+### Docs
+
+#### main.py
+>>>>>>> a5ed8e9 (readme first draft)
 This file is a Python script that uses the Alpaca Trade Manager and APScheduler libraries to place orders on the stock market.
 
 The first few lines of the script set up the logging configuration. The logging.basicConfig() function sets the global logging level to INFO, and the apscheduler_logger.setLevel(logging.WARNING) function sets the logging level for the apscheduler.scheduler logger to WARNING.
@@ -92,14 +98,21 @@ The scheduler.add_job() function schedules the make_orders() function to run eve
 
 The scheduler.start() function starts the scheduler.
 
+<<<<<<< HEAD
 The name == 'main' statement ensures that the script only runs when it is executed as a script, not when it is imported as a module.
 
 #### trading.py
 
+=======
+The __name__ == '__main__' statement ensures that the script only runs when it is executed as a script, not when it is imported as a module.
+
+#### trading.py
+>>>>>>> a5ed8e9 (readme first draft)
 This file contains a simple trading bot that generates buy and sell signals for the S&P 500 stocks.
 
 The bot uses two trading strategies:
 
+<<<<<<< HEAD
     Moving average crossover strategy: This strategy buys a stock when the 5-day moving average crosses above the 20-day moving average and sells the stock when the 5-day moving average crosses below the 20-day moving average.
     Engulfing candlestick pattern strategy: This strategy buys a stock when the open price of a day is lower than the previous day's close price and the close price of the day is higher than the previous day's open price.
 
@@ -115,16 +128,43 @@ import trade_bot
 trade_manager = trade_bot.TradeManager()
 
 #### Generate buy and sell signals
+=======
+* **Moving average crossover strategy:** This strategy buys a stock when the 5-day moving average crosses above the 20-day moving average and sells the stock when the 5-day moving average crosses below the 20-day moving average.
+* **Engulfing candlestick pattern strategy:** This strategy buys a stock when the open price of a day is lower than the previous day's close price and the close price of the day is higher than the previous day's open price.
+
+The bot makes orders through the `TradeManager` class, which abstracts away the details of interacting with a brokerage account.
+
+To use the bot, you will need to create a `TradeManager` instance and pass it to the `make_orders()` function. The `make_orders()` function will generate buy and sell signals for all the stocks in the S&P 500 and place the appropriate orders.
+
+Here is an example of how to use the bot:
+
+```python
+import trade_bot
+
+# Create a TradeManager instance
+trade_manager = trade_bot.TradeManager()
+
+# Generate buy and sell signals
+>>>>>>> a5ed8e9 (readme first draft)
 trade_bot.make_orders(trade_manager)
 
 
 The `make_orders()` function will print out the tickers of the stocks that were bought and sold. It will also publish a message to an SNS topic with the list of stocks that were traded.
+<<<<<<< HEAD
 
 #### alpaca_trade_manager.py
 
 This file defines a class called AlpacaTradeManager. This class provides methods to interact with the Alpaca API, such as getting price data, buying stocks, and selling stocks.
 
 The init() method initializes the AlpacaTradeManager object. The api attribute is a REST object that is used to interact with the Alpaca API.
+=======
+```
+
+#### alpaca_trade_manager.py
+This file defines a class called AlpacaTradeManager. This class provides methods to interact with the Alpaca API, such as getting price data, buying stocks, and selling stocks.
+
+The __init__() method initializes the AlpacaTradeManager object. The api attribute is a REST object that is used to interact with the Alpaca API.
+>>>>>>> a5ed8e9 (readme first draft)
 
 The get_price_data() method returns a pandas dataframe of the price data for the last two days of a given ticker.
 
@@ -135,8 +175,15 @@ The sell_stock() method sells all shares of a given stock.
 The get_stock_qty() method returns the quantity of a stock owned.
 
 The get_owned_tickers() method returns a list of tickers currently held in account.
+<<<<<<< HEAD
 Tests
 
+=======
+
+### 
+
+## Tests
+>>>>>>> a5ed8e9 (readme first draft)
 You can run test cases using make
 
 make tests
