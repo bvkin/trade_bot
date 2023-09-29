@@ -65,7 +65,7 @@ def alpaca_can_query_today_closing_price():
     return query_today
 
 
-def moving_average_singnal_generator(trade_manager, ticker):
+def moving_average_singnal_generator(df):
     """
     Genarates signals based on 5 and 20 day smoving averages
     Parameters:
@@ -75,10 +75,6 @@ def moving_average_singnal_generator(trade_manager, ticker):
     Returns:
         signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
     """
-    # 21 days to calculate 20 day ma of the current and previous day
-    period_start, period_end = get_first_last_market_days(21)
-    df = trade_manager.get_price_data(ticker, period_start, period_end)
-
     # Get 5 and 20 day moving averages
     try:
         df['day_ma_5'] = df['close'].rolling(window=5).mean()
@@ -88,7 +84,7 @@ def moving_average_singnal_generator(trade_manager, ticker):
         day_ma_20 = df.iloc[20, df.columns.get_loc('day_ma_20')]
         prev_day_ma_20 = df.iloc[19, df.columns.get_loc('day_ma_20')]
     except IndexError:
-        logging.warning(f"Unable to get the required data for {ticker}")
+        logging.warning(f"Unable to interpret required data")
         return NO_CLEAR_PATTERN
     
     # Generate signals
@@ -101,21 +97,18 @@ def moving_average_singnal_generator(trade_manager, ticker):
     
     return signal
 
-def engulfing_candlestick_signal_generator(trade_manager, ticker):
+def engulfing_candlestick_signal_generator(df):
     """
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
     """
-    period_start, period_end = get_first_last_market_days(2) # If market is active, today's date is -1
-    df = trade_manager.get_price_data(ticker, period_start, period_end)
-
     try:
         open = df.iloc[1, df.columns.get_loc('open')]
         close = df.iloc[1, df.columns.get_loc('close')]
         previous_open = df.iloc[0, df.columns.get_loc('open')]
         previous_close = df.iloc[0, df.columns.get_loc('close')]
     except IndexError:
-        logging.warning(f"Unable to get the required data for {ticker}")
+        logging.warning(f"Unable to interpret required data")
         return NO_CLEAR_PATTERN
 
     if (
@@ -146,22 +139,26 @@ def make_orders(trade_manager, sns_client, sns_topic_arn):
     Makes sell orders for all owned stocks bearish signal.
     """
     purchased_tickers, sold_tickers = [], []
+    period_start, period_end = get_first_last_market_days(21) # 21 for 20 day moving avg
+
     logging.info("Making orders...")
     for ticker in tickers_sp500():
         ticker = ticker.replace('-', '.')
         logging.info("Evaluating " + ticker + " for buy")
-        signal = moving_average_singnal_generator(trade_manager, ticker)
+        df = trade_manager.get_price_data(ticker, period_start, period_end)
+        signal = moving_average_singnal_generator(df)
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
             purchased_tickers.append(ticker)
 
     if purchased_tickers:
-        sns_client.publish(Message=f'Trade Bot Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
+        sns_client.publish(Message=f'Trade Bot Buy Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
 
     owned_tickers = trade_manager.get_owned_tickers()
     for ticker in owned_tickers:
         logging.info("Evaluating " + ticker + " for sell")
+        df = trade_manager.get_price_data(ticker, period_start, period_end)
         signal = moving_average_singnal_generator(trade_manager, ticker)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
@@ -169,4 +166,4 @@ def make_orders(trade_manager, sns_client, sns_topic_arn):
             sold_tickers.append(ticker)
 
     if sold_tickers:
-        sns_client.publish(Message=f'Trade Bot Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
+        sns_client.publish(Message=f'Trade Bot Sell Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
