@@ -47,8 +47,8 @@ class TestTrading(unittest.TestCase):
 
         for test_case in test_cases:
             with self.subTest(msg=f'{test_case["name"]}: {test_case["description"]}'):
-                self.trade_manager.get_price_data.return_value = DataFrame({"close" : test_case["close_prices"]})
-                self.assertEqual(moving_average_singnal_generator(self.trade_manager, "TEST"), test_case["expected"])
+                df = DataFrame({"close" : test_case["close_prices"]})
+                self.assertEqual(moving_average_singnal_generator(df), test_case["expected"])
 
         # Re-enable WARNING
         logging.disable(logging.WARNING)
@@ -87,7 +87,7 @@ class TestTrading(unittest.TestCase):
 
         for test_case in test_cases:
             with self.subTest(msg=test_case["name"]):
-                self.trade_manager.get_price_data.return_value = DataFrame(
+                df = DataFrame(
                     {
                      'open': [test_case["previous_open"], test_case["open"]],
                      'close': [test_case["previous_close"], test_case["close"]]
@@ -95,7 +95,7 @@ class TestTrading(unittest.TestCase):
                     index=test_case["index"]
                 )
 
-                self.assertEqual(engulfing_candlestick_signal_generator(self.trade_manager, "TEST"), test_case["expected"])
+                self.assertEqual(engulfing_candlestick_signal_generator(df), test_case["expected"])
 
 
 
