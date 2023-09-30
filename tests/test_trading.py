@@ -5,7 +5,7 @@ from pandas import DataFrame
 import pytz
 from unittest.mock import patch, Mock
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
-from trade_bot.trading import engulfing_candlestick_signal_generator, moving_average_singnal_generator, get_first_last_market_days, alpaca_can_query_today_closing_price
+from trade_bot.trading import engulfing_candlestick_signal_generator, moving_average_signal_generator, get_first_last_market_days, alpaca_can_query_today_closing_price
 from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
 
 
@@ -14,7 +14,7 @@ class TestTrading(unittest.TestCase):
         self.trade_manager = AlpacaTradeManager("api_key", "secret_key")
         self.trade_manager.get_price_data = Mock()
 
-    def test_moving_average_singnal_generator(self):
+    def test_moving_average_signal_generator(self):
         test_cases = [
             {
                 "name": "bullish",
@@ -48,7 +48,7 @@ class TestTrading(unittest.TestCase):
         for test_case in test_cases:
             with self.subTest(msg=f'{test_case["name"]}: {test_case["description"]}'):
                 df = DataFrame({"close" : test_case["close_prices"]})
-                self.assertEqual(moving_average_singnal_generator(df), test_case["expected"])
+                self.assertEqual(moving_average_signal_generator(df), test_case["expected"])
 
         # Re-enable WARNING
         logging.disable(logging.WARNING)

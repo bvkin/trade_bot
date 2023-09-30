@@ -2,8 +2,12 @@
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="yahoo_fin")
 
+from .alpaca_trade_manager import AlpacaTradeManager
+from boto3_type_annotations.sns import Client as SNSClient
 from datetime import datetime, date, time, timedelta
+import pandas as pd
 import pytz
+from typing import Literal, Tuple
 from yahoo_fin.stock_info import tickers_sp500
 import logging
 import pandas_market_calendars as mcal
@@ -12,7 +16,7 @@ import pandas_market_calendars as mcal
 # Constants for the signal generator
 BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
 
-def get_first_last_market_days(market_days_period):
+def get_first_last_market_days(market_days_period: int) -> Tuple[str, str]:
     """
     Returns a period of market days based on todays date
 
@@ -47,7 +51,7 @@ def get_first_last_market_days(market_days_period):
     return period_start, period_end
 
 
-def alpaca_can_query_today_closing_price():
+def alpaca_can_query_today_closing_price() -> bool:
     """
     Checks if the closing price of the day is safe to query on alpaca api 
 
@@ -65,12 +69,11 @@ def alpaca_can_query_today_closing_price():
     return query_today
 
 
-def moving_average_singnal_generator(df):
+def moving_average_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]:
     """
     Genarates signals based on 5 and 20 day smoving averages
     Parameters:
-        trade_manager (TradeManager): An instance of the TradeManager class used to manage trades.
-        ticker (str): The stock ticker for which the signal is to be generated.
+        df (TradeManager): A pandas dataframe of format from Alpaca Trade API for which to check moving averages
 
     Returns:
         signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
@@ -97,10 +100,15 @@ def moving_average_singnal_generator(df):
     
     return signal
 
-def engulfing_candlestick_signal_generator(df):
+def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]:
     """
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
+    Parameters:
+        df (TradeManager): A pandas dataframe of format from Alpaca Trade API for which to check moving averages
+
+    Returns:
+        signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
     """
     try:
         open = df.iloc[1, df.columns.get_loc('open')]
@@ -133,7 +141,7 @@ def engulfing_candlestick_signal_generator(df):
         return NO_CLEAR_PATTERN
 
 
-def make_orders(trade_manager, sns_client, sns_topic_arn):
+def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_topic_arn: str) -> None:
     """
     Makes buy orders for all stocks in the S&P 500 given a bullish signal.
     Makes sell orders for all owned stocks bearish signal.
@@ -146,7 +154,7 @@ def make_orders(trade_manager, sns_client, sns_topic_arn):
         ticker = ticker.replace('-', '.')
         logging.info("Evaluating " + ticker + " for buy")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_singnal_generator(df)
+        signal = moving_average_signal_generator(df)
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
@@ -159,7 +167,7 @@ def make_orders(trade_manager, sns_client, sns_topic_arn):
     for ticker in owned_tickers:
         logging.info("Evaluating " + ticker + " for sell")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_singnal_generator(trade_manager, ticker)
+        signal = moving_average_signal_generator(trade_manager, ticker)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
