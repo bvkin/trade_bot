@@ -1,6 +1,6 @@
-from alpaca_trade_api.rest import AlpacaTradeManager, REST, TimeFrame
+from alpaca_trade_api.rest import REST, TimeFrame
 import pandas as pd
-from typing import List, Optional
+from typing import Any, List, Optional
 from yahoo_fin import stock_info as si
 
 class AlpacaTradeManager:
@@ -9,7 +9,7 @@ class AlpacaTradeManager:
                  alpaca_secret_key: str,
                  base_url: str = "https://paper-api.alpaca.markets",
                  api_version: str = 'v2',
-                 api: Optional[AlpacaTradeManager] = None) -> None:
+                 api: Optional[Any] = None) -> None:
         if api is None:
             self.api = REST(
                 alpaca_api_key,
