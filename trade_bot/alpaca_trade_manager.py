@@ -1,8 +1,15 @@
-from alpaca_trade_api.rest import REST, TimeFrame
+from alpaca_trade_api.rest import AlpacaTradeManager, REST, TimeFrame
+import pandas as pd
+from typing import List, Optional
 from yahoo_fin import stock_info as si
 
 class AlpacaTradeManager:
-    def __init__(self, alpaca_api_key: str, alpaca_secret_key: str, base_url: str = "https://paper-api.alpaca.markets", api_version: str = 'v2', api=None):
+    def __init__(self,
+                 alpaca_api_key: str,
+                 alpaca_secret_key: str,
+                 base_url: str = "https://paper-api.alpaca.markets",
+                 api_version: str = 'v2',
+                 api: Optional[AlpacaTradeManager] = None) -> None:
         if api is None:
             self.api = REST(
                 alpaca_api_key,
@@ -14,15 +21,14 @@ class AlpacaTradeManager:
             self.api = api
 
 
-    def get_price_data(self, ticker, period_start, period_end):
+    def get_price_data(self, ticker: str, period_start: str, period_end: str) -> pd.DataFrame:
         """
         Returns a pandas dataframe of the price data for last two days of a given ticker.
         """
-        # return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment='raw').df
         return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment='raw').df
 
 
-    def buy_stock(self, ticker):
+    def buy_stock(self, ticker: str) -> None:
         """
         Buys 5% of the buying power of the account for a given ticker.
         Limits losses at 10% of original purchase value.
@@ -43,7 +49,7 @@ class AlpacaTradeManager:
         )
 
 
-    def sell_stock(self, ticker):
+    def sell_stock(self, ticker: str) -> None:
         """
         Sells all shares of a stock.
         """
@@ -56,14 +62,14 @@ class AlpacaTradeManager:
         )
 
 
-    def get_stock_qty(self, ticker):
+    def get_stock_qty(self, ticker: str) -> float:
         """
         Returns the quantity of a stock owned.
         """
         return [item.qty for item in  self.api.list_positions() if item.symbol == ticker][0]
 
 
-    def get_owned_tickers(self):
+    def get_owned_tickers(self) -> List[str]:
         """
         Returns a list of tickers currently held in account
         """
