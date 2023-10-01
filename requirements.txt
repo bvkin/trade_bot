@@ -1,9 +1,10 @@
 APScheduler==3.10.1
-boto3==1.28.43
-boto3-type-annotations==0.3.1
 alpaca-py==0.8.2
 alpaca-trade-api==3.0.2
+boto3==1.28.43
+boto3-type-annotations==0.3.1
 coverage==7.2.7
 pandas-market-calendars==4.1.4
+pytest==7.4.2
 python-dotenv==1.0.0
 yahoo-fin==0.8.9.1
