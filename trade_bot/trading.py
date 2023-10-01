@@ -141,7 +141,7 @@ def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]
         return NO_CLEAR_PATTERN
 
 
-def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_topic_arn: str) -> None:
+def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_topic_arn: str = None) -> None:
     """
     Makes buy orders for all stocks in the S&P 500 given a bullish signal.
     Makes sell orders for all owned stocks bearish signal.
@@ -160,7 +160,7 @@ def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_t
             logging.info("Buy order for " + ticker + " placed.")
             purchased_tickers.append(ticker)
 
-    if purchased_tickers:
+    if purchased_tickers and sns_topic_arn != None:
         sns_client.publish(Message=f'Trade Bot Buy Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
 
     owned_tickers = trade_manager.get_owned_tickers()
@@ -173,5 +173,5 @@ def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_t
             logging.info("Sell order for " + ticker + " placed.")
             sold_tickers.append(ticker)
 
-    if sold_tickers:
+    if sold_tickers and sns_topic_arn != None:
         sns_client.publish(Message=f'Trade Bot Sell Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
