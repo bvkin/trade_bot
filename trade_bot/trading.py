@@ -164,10 +164,11 @@ def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_t
         sns_client.publish(Message=f'Trade Bot Buy Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
 
     owned_tickers = trade_manager.get_owned_tickers()
+
     for ticker in owned_tickers:
         logging.info("Evaluating " + ticker + " for sell")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_signal_generator(trade_manager, ticker)
+        signal = moving_average_signal_generator(df)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
