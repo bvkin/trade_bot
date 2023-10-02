@@ -1,5 +1,6 @@
+from datetime import date, datetime
 from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
-
+import pytz
 
 moving_averages_test_cases = [
     {
@@ -30,4 +31,127 @@ moving_averages_test_cases = [
         "close_prices": [100 for _ in range(21)],
         "expected": NO_CLEAR_PATTERN
     }
+]
+
+engulfing_candlestick_test_cases = [
+    {
+        "name": "bearish",
+        "open": 13,
+        "close": 6,
+        "previous_open": 7,
+        "previous_close": 8,
+        "index": ["2023-07-25", "2023-07-26"],
+        "expected": 1
+    },
+    {
+        "name": "bullish",
+        "open": 10,
+        "close": 13,
+        "previous_open": 12,
+        "previous_close": 11,
+        "index": ["2023-07-25", "2023-07-26"],
+        "expected": 2
+    },
+    {
+        "name": "no clear pattern",
+        "open": 11,
+        "close": 12,
+        "previous_open": 10,
+        "previous_close": 11,
+        "index": ["2023-07-25", "2023-07-26"],
+        "expected": 0
+    }
+]
+
+alpaca_can_query_today_closing_price_test_cases = [
+    {
+        "name": "after_hours",
+        "now": datetime(2023, 7, 27, 17, 31, tzinfo=pytz.timezone('US/Eastern')), # 5:31 PM Eastern
+        "expected": True,
+    },
+    {
+        "name": "during_hours",
+        "now": datetime(2023, 7, 27, 10, 0, tzinfo=pytz.timezone('US/Eastern')), # 10 AM Eastern
+        "expected": False,
+    },
+    {
+        "name": "before_hours",
+        "now": datetime(2023, 7, 27, 6, 0, tzinfo=pytz.timezone('US/Eastern')), # 10 AM Eastern
+        "expected": False,
+    }
+]
+
+get_first_last_market_days_test_cases = [
+    {
+        # Spans over week days
+        "name": "over_week_dont_query_today",
+        "date": date(2023, 7, 28), # Friday
+        "market_days_period": 5,
+        "query_today": False,
+        "expected_start_date": '2023-07-21T00:00:00-04:00',
+        "expected_end_date": "2023-07-27T16:30:00-04:00"
+    },
+    {
+        # Spans over week days
+        "name": "over_week_query_today",
+        "date": date(2023, 7, 28), # Friday
+        "market_days_period": 5,
+        "query_today": True,
+        "expected_start_date": '2023-07-24T00:00:00-04:00',
+        "expected_end_date": "2023-07-28T16:30:00-04:00"
+    },
+    {
+        # Spans over a weekend
+        "name": "over_weekend_query_today",
+        "date": date(2023, 7, 31), # Monday
+        "market_days_period": 2,
+        "query_today": True,
+        "expected_start_date": '2023-07-28T00:00:00-04:00',
+        "expected_end_date": "2023-07-31T16:30:00-04:00"
+    },
+    {
+        # Spans over a weekend
+        "name": "over_weekend_dont_query_today",
+        "date": date(2023, 7, 31), # Monday
+        "market_days_period": 2,
+        "query_today": False,
+        "expected_start_date": '2023-07-27T00:00:00-04:00',
+        "expected_end_date": "2023-07-28T16:30:00-04:00"
+    },
+    {
+        # Is weekend
+        "name": "is_weekend_query_today",
+        "date": date(2023, 7, 30), # Monday
+        "market_days_period": 2,
+        "query_today": True,
+        "expected_start_date": '2023-07-27T00:00:00-04:00',
+        "expected_end_date": "2023-07-28T16:30:00-04:00"
+    },
+    {
+        # Is weekend
+        "name": "is_weekend_dont_query_today",
+        "date": date(2023, 7, 30), # Monday
+        "market_days_period": 2,
+        "query_today": False,
+        "expected_start_date": '2023-07-27T00:00:00-04:00',
+        "expected_end_date": "2023-07-28T16:30:00-04:00"
+    },
+    {
+        # Spans over a holidays
+        "name": "over_holiday_dont_query_today",
+        "date": date(2023, 7, 7), # July 7th through July 4th
+        "market_days_period": 5,
+        "query_today": False,
+        "expected_start_date": '2023-06-29T00:00:00-04:00',
+        "expected_end_date": "2023-07-06T16:30:00-04:00"
+    },
+    {
+        # Spans over a holidays
+        "name": "over_holiday_query_today",
+        "date": date(2023, 7, 7), # July 7th through July 4th
+        "market_days_period": 5,
+        "query_today": True,
+        "expected_start_date": '2023-06-30T00:00:00-04:00',
+        "expected_end_date": "2023-07-07T16:30:00-04:00"
+    },
 ]

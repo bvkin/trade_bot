@@ -1,8 +1,7 @@
 .PHONY: test
 
 test:
-	coverage run -m unittest discover tests
-	coverage report -m --fail-under=70
+	pytest --cov=./trade_bot --cov-fail-under=70 tests
 
 build:
 	docker build -f docker/Dockerfile . -t trade_bot

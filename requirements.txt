@@ -6,5 +6,6 @@ boto3-type-annotations==0.3.1
 coverage==7.2.7
 pandas-market-calendars==4.1.4
 pytest==7.4.2
+pytest-cov==4.1.0
 python-dotenv==1.0.0
 yahoo-fin==0.8.9.1
