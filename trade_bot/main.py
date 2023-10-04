@@ -19,14 +19,11 @@ if __name__ == '__main__':
     api_key = os.getenv('ALPACA_API_KEY')
     secret_key = os.getenv('ALPACA_SECRET_KEY')
     trade_manager = AlpacaTradeManager(alpaca_api_key=api_key, alpaca_secret_key=secret_key)
-<<<<<<< HEAD
 
     aws_region = os.getenv('AWS_DEFAULT_REGION')
     sns_topic_arn = os.getenv('AWS_SNS_TOPIC_ARN')
-    sns_client = boto3.client("sns", region_name=aws_region)
+    sns_client = boto3.client("sns", region_name="us-east1")
 
-=======
->>>>>>> aba9b37 (Notional Orders (#4))
     logging.info("Running order scheduler...")
     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     scheduler = BlockingScheduler()
