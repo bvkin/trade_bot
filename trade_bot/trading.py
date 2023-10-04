@@ -2,7 +2,7 @@
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="yahoo_fin")
 
-from .alpaca_trade_manager import AlpacaTradeManager
+from alpaca_trade_manager import AlpacaTradeManager
 from boto3_type_annotations.sns import Client as SNSClient
 from datetime import datetime, date, time, timedelta
 import pandas as pd

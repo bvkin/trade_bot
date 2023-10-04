@@ -1,6 +1,6 @@
 from alpaca_trade_manager import AlpacaTradeManager
 from apscheduler.schedulers.blocking import BlockingScheduler
-import boto3
+import google.cloud.pubsub as pubsub
 import datetime
 from dotenv import load_dotenv
 import logging
@@ -16,19 +16,16 @@ apscheduler_logger.setLevel(logging.WARNING)
 
 if __name__ == '__main__':
     load_dotenv()
+
     api_key = os.getenv('ALPACA_API_KEY')
     secret_key = os.getenv('ALPACA_SECRET_KEY')
     trade_manager = AlpacaTradeManager(alpaca_api_key=api_key, alpaca_secret_key=secret_key)
-<<<<<<< HEAD
 
-    aws_region = os.getenv('AWS_DEFAULT_REGION')
-    sns_topic_arn = os.getenv('AWS_SNS_TOPIC_ARN')
-    sns_client = boto3.client("sns", region_name=aws_region)
+    publisher = pubsub.PublisherClient()
+    topic_path = publisher.topic_path('my-project-id', 'my-topic-name')
 
-=======
->>>>>>> aba9b37 (Notional Orders (#4))
     logging.info("Running order scheduler...")
     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     scheduler = BlockingScheduler()
-    scheduler.add_job(make_orders, 'cron', args=[trade_manager, sns_client, sns_topic_arn], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
+    scheduler.add_job(make_orders, 'cron', args=[trade_manager, publisher, topic_path], start_date=current_time, day_of_week='mon-fri', hour=14, minute=31, timezone='US/Eastern')
     scheduler.start()
