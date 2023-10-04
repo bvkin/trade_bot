@@ -39,7 +39,11 @@ class TestAlpacaTradeManager(unittest.TestCase):
             ),
             side='buy',
             type='market',
+<<<<<<< HEAD
             time_in_force='day'
+=======
+            time_in_force='gtc'
+>>>>>>> aba9b37 (Notional Orders (#4))
         )
         
 
