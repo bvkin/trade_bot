@@ -89,4 +89,4 @@ terraform.rc
 .terragrunt-cache/
 
 # Backtesting Graphs
-./backtest/graphs/*
+backtest/graphs/

@@ -56,6 +56,9 @@ if __name__ == '__main__':
     print(stat)
 
     # Graph
+    if not os.path.exists("graphs"):
+        os.mkdir("graphs")
+
     bt.plot(
         filename=f'graphs/{args.ticker}-{args.period}.html',
         plot_return=True,
