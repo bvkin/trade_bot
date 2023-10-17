@@ -35,6 +35,7 @@ class AlpacaTradeManager:
         """
         buying_power = float(self.api.get_account().buying_power)
         purchase_amnt = round(buying_power * 0.05, 2)
+        if purchase_amnt < 1.00: purchase_amnt = 1.00 
         floor = round(purchase_amnt * 0.9, 2)
 
         self.api.submit_order(

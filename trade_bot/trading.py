@@ -161,17 +161,21 @@ def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_t
             purchased_tickers.append(ticker)
 
     if purchased_tickers and sns_topic_arn != None:
-        sns_client.publish(Message=f'Trade Bot Buy Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
+        for ticker in purchased_tickers:
+          logging.info('Trade Bot Buy Order Made: ' + ticker)
+        # sns_client.publish(Message=f'Trade Bot Buy Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
 
     owned_tickers = trade_manager.get_owned_tickers()
     for ticker in owned_tickers:
         logging.info("Evaluating " + ticker + " for sell")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_signal_generator(trade_manager, ticker)
+        signal = moving_average_signal_generator(df)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
             sold_tickers.append(ticker)
 
     if sold_tickers and sns_topic_arn != None:
-        sns_client.publish(Message=f'Trade Bot Sell Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
+        for ticker in sold_tickers:
+          logging.info('Trade Bot Buy Order Made: ' + ticker)
+        # sns_client.publish(Message=f'Trade Bot Sell Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
