@@ -51,8 +51,9 @@ def main(sleep_ms=0, fail_rate=0):
     logging.info("Running order scheduler...")
     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     scheduler = BlockingScheduler()
-    scheduler.add_job(make_orders, 'cron', args=[trade_manager, publisher, topic_path], start_date=current_time, day_of_week='mon-fri', hour=14, minute=50, timezone='US/Eastern')
-    scheduler.start()
+    make_orders(trade_manager, publisher,  topic_path)
+    # scheduler.add_job(make_orders, 'cron', args=[trade_manager, publisher, topic_path], start_date=current_time, day_of_week='mon-fri', hour=16, minute=38, timezone='US/Eastern')
+    # scheduler.start()
 
     # Simulate errors
     random_failure(float(fail_rate))

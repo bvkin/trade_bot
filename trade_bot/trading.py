@@ -150,6 +150,17 @@ def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_t
     period_start, period_end = get_first_last_market_days(21) # 21 for 20 day moving avg
 
     logging.info("Making orders...")
+    owned_tickers = trade_manager.get_owned_tickers()
+    # logging.info(owned_tickers)
+    for ticker in owned_tickers:
+        logging.info("Evaluating " + ticker + " for sell")
+        df = trade_manager.get_price_data(ticker, period_start, period_end)
+        signal = moving_average_signal_generator(df)
+        if signal == BEARISH:
+            trade_manager.sell_stock(ticker)
+            logging.info("Sell order for " + ticker + " placed.")
+            sold_tickers.append(ticker)
+
     for ticker in tickers_sp500():
         ticker = ticker.replace('-', '.')
         logging.info("Evaluating " + ticker + " for buy")
@@ -160,22 +171,13 @@ def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_t
             logging.info("Buy order for " + ticker + " placed.")
             purchased_tickers.append(ticker)
 
+    if sold_tickers and sns_topic_arn != None:
+        for ticker in sold_tickers:
+          logging.info('Trade Bot Buy Order Made: ' + ticker)
+        # sns_client.publish(Message=f'Trade Bot Sell Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
+    
     if purchased_tickers and sns_topic_arn != None:
         for ticker in purchased_tickers:
           logging.info('Trade Bot Buy Order Made: ' + ticker)
         # sns_client.publish(Message=f'Trade Bot Buy Orders Made: {", ".join(purchased_tickers)}', TopicArn=sns_topic_arn)
 
-    owned_tickers = trade_manager.get_owned_tickers()
-    for ticker in owned_tickers:
-        logging.info("Evaluating " + ticker + " for sell")
-        df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_signal_generator(df)
-        if signal == BEARISH:
-            trade_manager.sell_stock(ticker)
-            logging.info("Sell order for " + ticker + " placed.")
-            sold_tickers.append(ticker)
-
-    if sold_tickers and sns_topic_arn != None:
-        for ticker in sold_tickers:
-          logging.info('Trade Bot Buy Order Made: ' + ticker)
-        # sns_client.publish(Message=f'Trade Bot Sell Orders Made: {", ".join(sold_tickers)}', TopicArn=sns_topic_arn)
