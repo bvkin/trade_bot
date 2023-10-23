@@ -1,4 +1,4 @@
-terragrunt_version_constraint = "~> 0.42.7"
+terragrunt_version_constraint = "~> 0.52.4"
 
 remote_state {
   backend = "s3"

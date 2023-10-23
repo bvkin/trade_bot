@@ -1,9 +1,9 @@
 locals {
   env = yamldecode(file(find_in_parent_folders("env.yml")))
-  iam_role = "arn:aws:iam::${get_aws_account_id()}:role/${local.env.iam_role}"
+  # iam_role = "arn:aws:iam::${get_aws_account_id()}:role/${local.env.iam_role}"
 }
 
-iam_role = local.iam_role
+# iam_role = local.iam_role
 
 include "root" {
   path = find_in_parent_folders()
