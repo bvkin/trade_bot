@@ -59,7 +59,7 @@ class AlpacaTradeManager:
             qty=self.get_stock_qty(ticker),
             side='sell',
             type='market',
-            time_in_force='gtc'
+            time_in_force='day'
         )
 
 
