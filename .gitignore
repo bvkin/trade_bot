@@ -87,3 +87,6 @@ terraform.rc
 
 # Local Terragrunt cache directory
 .terragrunt-cache/
+
+# Backtesting Graphs
+backtest/graphs/
