@@ -21,11 +21,11 @@ class AlpacaTradeManager:
             self.api = api
 
 
-    def get_price_data(self, ticker: str, period_start: str, period_end: str) -> pd.DataFrame:
+    def get_price_data(self, ticker: str, period_start: str, period_end: str, adjustment: str = 'raw') -> pd.DataFrame:
         """
         Returns a pandas dataframe of the price data for last two days of a given ticker.
         """
-        return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment='raw').df
+        return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment=adjustment).df
 
 
     def buy_stock(self, ticker: str) -> None:

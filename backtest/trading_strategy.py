@@ -9,10 +9,9 @@ class TradingStrategy(Strategy):
         self.signal1 = self.I(SIGNAL, self.data)
 
     def next(self):
-        super().next() 
+        price = self.data.Close[-1]
+
         if self.signal1==BULLISH:
-            self.position.close()
-            self.buy(size=0.05)
+            self.buy(tp=1.15*price, sl=0.95*price)
         elif self.signal1==BEARISH:
             self.position.close()
-            self.sell()

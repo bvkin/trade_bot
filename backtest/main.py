@@ -28,7 +28,7 @@ if __name__ == '__main__':
     end_period = today - datetime.timedelta(days=1)
     start_period = end_period.replace(year=today.year - int(args.period))
 
-    df = trade_manager.get_price_data(args.ticker, start_period.strftime("%Y-%m-%d"), end_period.strftime("%Y-%m-%d"))
+    df = trade_manager.get_price_data(args.ticker, start_period.strftime("%Y-%m-%d"), end_period.strftime("%Y-%m-%d"), adjustment='split')
 
     # Add buy/sell signals to dataframe
     signal = [0] * len(df)
@@ -61,8 +61,4 @@ if __name__ == '__main__':
 
     bt.plot(
         filename=f'graphs/{args.ticker}-{args.period}.html',
-        plot_return=True,
-        plot_pl=True,
-        plot_volume=False,
-        plot_equity=False
     )
