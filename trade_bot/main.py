@@ -1,4 +1,4 @@
-from alpaca_trade_manager import AlpacaTradeManager
+from trade_bot.alpaca_trade_manager import AlpacaTradeManager
 from apscheduler.schedulers.blocking import BlockingScheduler
 import boto3
 import datetime
