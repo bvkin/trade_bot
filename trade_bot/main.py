@@ -5,7 +5,7 @@ import datetime
 from dotenv import load_dotenv
 import logging
 import os
-from trading import make_orders, get_first_last_market_days
+from trading import make_orders
 
 # Set global logging level to INFO
 logging.basicConfig(level=logging.INFO)
