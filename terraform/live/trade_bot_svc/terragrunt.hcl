@@ -53,4 +53,16 @@ inputs = {
     ecr_repo = dependency.ecr.outputs.repository_url
     ecs_cluster_id = dependency.ecs_cluster.outputs.cluster_id
     sns_topic_arn = dependency.sns.outputs.topic_arn
+    tickers = [
+      "ADP",
+      "AFL",
+      "BKR",
+      "BKNG",
+      "CAT",
+      "COST",
+      "KMB",
+      "LIN",
+      "NEE",
+      "ROK"
+    ]
 }

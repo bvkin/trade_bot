@@ -38,7 +38,11 @@ resource "aws_ecs_task_definition" "this" {
         {
           name = "AWS_SNS_TOPIC_ARN"
           value = var.sns_topic_arn
-        }
+        },
+        {
+          name = "TICKERS"
+          value = join(",", var.tickers)
+        },
       ],
       "secrets" = [
         {

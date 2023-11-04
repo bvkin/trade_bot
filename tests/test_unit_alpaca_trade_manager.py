@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch, Mock
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
-from yahoo_fin import stock_info as si
 
 class TestAlpacaTradeManager(unittest.TestCase):
 
@@ -15,8 +14,7 @@ class TestAlpacaTradeManager(unittest.TestCase):
         )
 
 
-    @patch.object(si, 'get_quote_table', return_value={'Quote Price': 10})
-    def test_buy_stock(self, mock_get_quote_table):
+    def test_buy_stock(self):
         """
         Tests the 'buy_stock' method of the 'AlpacaTradeManager' class.
         """

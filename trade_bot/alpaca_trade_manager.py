@@ -1,7 +1,6 @@
 from alpaca_trade_api.rest import REST, TimeFrame
 import pandas as pd
 from typing import Any, List, Optional
-from yahoo_fin import stock_info as si
 
 class AlpacaTradeManager:
     def __init__(self,

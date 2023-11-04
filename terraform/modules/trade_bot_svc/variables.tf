@@ -45,3 +45,8 @@ variable "sns_topic_arn" {
   description = "SNS topic arn for publishing messages"
   type = string
 }
+
+variable "tickers" {
+  description = "A list of stock tickers on which the trade bot should trade"
+  type = list(string)
+}
