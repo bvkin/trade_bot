@@ -24,8 +24,10 @@ if __name__ == '__main__':
     sns_topic_arn = os.getenv('AWS_SNS_TOPIC_ARN')
     sns_client = boto3.client("sns", region_name=aws_region)
 
+    tickers = os.getenv('TICKERS').split(',')
+
     logging.info("Running order scheduler...")
     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     scheduler = BlockingScheduler()
-    scheduler.add_job(make_orders, 'cron', args=[trade_manager, sns_client, sns_topic_arn], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
+    scheduler.add_job(make_orders, 'cron', args=[trade_manager, tickers, sns_client, sns_topic_arn], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
     scheduler.start()

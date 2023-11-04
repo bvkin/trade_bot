@@ -7,8 +7,7 @@ from boto3_type_annotations.sns import Client as SNSClient
 from datetime import datetime, date, time, timedelta
 import pandas as pd
 import pytz
-from typing import Literal, Tuple
-from yahoo_fin.stock_info import tickers_sp500
+from typing import List, Literal, Tuple
 import logging
 import pandas_market_calendars as mcal
 
@@ -141,7 +140,7 @@ def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]
         return NO_CLEAR_PATTERN
 
 
-def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_topic_arn: str = None) -> None:
+def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_client: SNSClient,  sns_topic_arn: str = None) -> None:
     """
     Makes buy orders for all stocks in the S&P 500 given a bullish signal.
     Makes sell orders for all owned stocks bearish signal.
@@ -150,8 +149,7 @@ def make_orders(trade_manager: AlpacaTradeManager, sns_client: SNSClient,  sns_t
     period_start, period_end = get_first_last_market_days(21) # 21 for 20 day moving avg
 
     logging.info("Making orders...")
-    for ticker in tickers_sp500():
-        ticker = ticker.replace('-', '.')
+    for ticker in tickers:
         logging.info("Evaluating " + ticker + " for buy")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
         signal = moving_average_signal_generator(df)
