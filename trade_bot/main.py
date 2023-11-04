@@ -1,11 +1,11 @@
-from alpaca_trade_manager import AlpacaTradeManager
+from trade_bot.alpaca_trade_manager import AlpacaTradeManager
 from apscheduler.schedulers.blocking import BlockingScheduler
 import boto3
 import datetime
 from dotenv import load_dotenv
 import logging
 import os
-from trading import make_orders, get_first_last_market_days
+from trading import make_orders
 
 # Set global logging level to INFO
 logging.basicConfig(level=logging.INFO)
