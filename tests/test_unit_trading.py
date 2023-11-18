@@ -1,7 +1,7 @@
 from datetime import date, datetime
 import logging
 import unittest
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from unittest.mock import patch, Mock
 from .test_data import moving_averages_test_cases, engulfing_candlestick_test_cases, alpaca_can_query_today_closing_price_test_cases, get_first_last_market_days_test_cases
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
@@ -20,8 +20,8 @@ class TestTrading(unittest.TestCase):
 
         for test_case in moving_averages_test_cases:
             with self.subTest(msg=f'{test_case["name"]}: {test_case["description"]}'):
-                df = DataFrame({"close" : test_case["close_prices"]})
-                self.assertEqual(moving_average_signal_generator(df), test_case["expected"])
+                closes = Series(test_case["close_prices"])
+                self.assertEqual(moving_average_signal_generator(closes), test_case["expected"])
 
         # Re-enable WARNING
         logging.disable(logging.WARNING)
