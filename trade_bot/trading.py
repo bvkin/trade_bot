@@ -3,6 +3,7 @@ from boto3_type_annotations.sns import Client as SNSClient
 from datetime import datetime, date, time, timedelta
 import pandas as pd
 import pytz
+import talib
 from typing import List, Literal, Tuple
 import logging
 import pandas_market_calendars as mcal
@@ -64,37 +65,33 @@ def alpaca_can_query_today_closing_price() -> bool:
     return query_today
 
 
-def moving_average_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]:
+def moving_average_signal_generator(closes: pd.Series, short_window: int = 5, long_window: int = 20) -> Literal[1, 2, 0]:
     """
     Genarates signals based on 5 and 20 day smoving averages
     Parameters:
-        df (TradeManager): A pandas dataframe of format from Alpaca Trade API for which to check moving averages
-
+        closes (pd.Series): A pandas series representing close prices for a stock
+        short_window (int): Integer value representing shorter moving average window
+        long_window (int): Integer value representing longer moving average window
     Returns:
         signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
     """
-    # Get 5 and 20 day moving averages
+    # Get moving averages for short and long windows
+    # Grab tail of long_window +1 for to prevent longer roller periods when backtesting
     try:
-        df['day_ma_5'] = df['close'].rolling(window=5).mean()
-        df['day_ma_20'] = df['close'].rolling(window=20).mean()
-        day_ma_5 = df.iloc[20, df.columns.get_loc('day_ma_5')]
-        prev_day_ma_5 = df.iloc[19, df.columns.get_loc('day_ma_5')]
-        day_ma_20 = df.iloc[20, df.columns.get_loc('day_ma_20')]
-        prev_day_ma_20 = df.iloc[19, df.columns.get_loc('day_ma_20')]
+        short_window_ma = talib.SMA(closes.tail(long_window + 1), timeperiod=short_window).values
+        long_window_ma = talib.SMA(closes.tail(long_window + 1), timeperiod=long_window).values
     except IndexError:
         logging.warning(f"Unable to interpret required data")
         return NO_CLEAR_PATTERN
     
     # Generate signals
-    if day_ma_5 > day_ma_20 and prev_day_ma_5 <= prev_day_ma_20: # 5 day crosses above 20 day
-        signal = BULLISH
-    elif day_ma_5 < day_ma_20 and prev_day_ma_5 >= prev_day_ma_20: # 5 day drops below 20 day
-        signal = BEARISH
+    if short_window_ma[-1] > long_window_ma[-1] and short_window_ma[-2] <= long_window_ma[-2]: # 5 day crosses above 20 day
+        return BULLISH
+    elif short_window_ma[-1] < long_window_ma[-1] and  short_window_ma[-2] >= long_window_ma[-2]: # 5 day drops below 20 day
+        return BEARISH
     else:
-        signal = NO_CLEAR_PATTERN
+        return NO_CLEAR_PATTERN
     
-    return signal
-
 def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]:
     """
     Returns a signal based on the price data of a given ticker.
@@ -148,7 +145,7 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
     for ticker in tickers:
         logging.info("Evaluating " + ticker + " for buy")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_signal_generator(df)
+        signal = moving_average_signal_generator(df.close)
         if signal == BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
@@ -162,7 +159,7 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
     for ticker in owned_tickers:
         logging.info("Evaluating " + ticker + " for sell")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_signal_generator(df)
+        signal = moving_average_signal_generator(df.close)
         if signal == BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
