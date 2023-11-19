@@ -30,7 +30,7 @@ jobs:
         && cd ta-lib \
         && ./configure --prefix=/usr \
         && make \
-        && make install \
+        && sudo make install \
         && cd .. \
         && rm -rf ta-lib
 
