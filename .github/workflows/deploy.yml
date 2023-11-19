@@ -22,6 +22,18 @@ jobs:
     - name: Install make
       run: sudo apt-get install -y make
 
+    - name: Install Ta-Lib
+      run: |
+        wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
+        && ls \
+        && tar -xzf ta-lib-0.4.0-src.tar.gz \
+        && cd ta-lib \
+        && ./configure --prefix=/usr \
+        && make \
+        && make install \
+        && cd .. \
+        && rm -rf ta-lib
+
     - name: Install dependencies
       run: pip install --no-cache-dir . --upgrade pip
 
