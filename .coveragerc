@@ -1,3 +1,4 @@
 [run]
 omit = 
     ./trade_bot/main.py
+    __init__.py

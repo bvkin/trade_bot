@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, Mock
-from trade_bot.alpaca_trade_manager import AlpacaTradeManager
+from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 
 class TestAlpacaTradeManager(unittest.TestCase):
 
@@ -41,7 +41,7 @@ class TestAlpacaTradeManager(unittest.TestCase):
         )
         
 
-    @patch('trade_bot.alpaca_trade_manager.AlpacaTradeManager.get_stock_qty', return_value=10)
+    @patch('core.alpaca.alpaca_trade_manager.AlpacaTradeManager.get_stock_qty', return_value=10)
     def test_sell_stock(self, mock_get_stock_qty):
         """
         Tests the 'sell_stock' method of the 'AlpacaTradeManager' class.
