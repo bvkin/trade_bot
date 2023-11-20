@@ -20,12 +20,9 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
         logging.info("Evaluating " + ticker + " for buy")
 
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        ma = MovingAverages(df.close)
-        short_window_ma = ma.gen_moving_average(5)
-        long_window_ma  = ma.gen_moving_average(20)
-        signal = ma.signal(short_window_ma, long_window_ma)
-        
-        if signal == TradeSignal.BULLISH:
+        strat = MovingAverages(df.close, short_window=5, long_window=20)
+
+        if strat.signal() == TradeSignal.BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
             purchased_tickers.append(ticker)
@@ -39,12 +36,9 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
         logging.info("Evaluating " + ticker + " for sell")
         
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        ma = MovingAverages(df.close)
-        short_window_ma = ma.gen_moving_average(5)
-        long_window_ma  = ma.gen_moving_average(20)
-        signal = ma.signal(short_window_ma, long_window_ma)
+        strat = MovingAverages(df.close, short_window=5, long_window=20)
 
-        if signal == TradeSignal.BEARISH:
+        if strat.signal() == TradeSignal.BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
             sold_tickers.append(ticker)
