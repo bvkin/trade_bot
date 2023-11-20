@@ -81,7 +81,7 @@ alpaca_can_query_today_closing_price_test_cases = [
     }
 ]
 
-get_first_last_market_days_test_cases = [
+get_market_day_range_test_cases = [
     {
         # Spans over week days
         "name": "over_week_dont_query_today",

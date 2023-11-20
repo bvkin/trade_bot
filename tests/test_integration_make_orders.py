@@ -28,7 +28,7 @@ def mock_trade_manager():
 def mock_sns_client():
     return MagicMock()
 
-@patch("trade_bot.trading.get_first_last_market_days", return_value=("2023-01-01", "2023-01-21"))
+@patch("trade_bot.trading.get_market_day_range", return_value=("2023-01-01", "2023-01-21"))
 def test_make_orders(mock_get_days, mock_trade_manager, mock_sns_client):
 
     mock_sns_topic_arn = "arn:aws:sns:us-east-1:123456789101:trade_bot_signals"
