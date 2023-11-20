@@ -2,9 +2,6 @@ from datetime import date, datetime
 from core.models.trade_signal import TradeSignal
 import pytz
 
-# Constants for the signal generator
-BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
-
 moving_averages_test_cases = [
     {
         "name": "bullish",
