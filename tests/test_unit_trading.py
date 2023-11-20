@@ -6,7 +6,6 @@ from unittest.mock import patch, Mock
 from .test_data import moving_averages_test_cases, engulfing_candlestick_test_cases, alpaca_can_query_today_closing_price_test_cases, get_first_last_market_days_test_cases
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
 from trade_bot.trading import engulfing_candlestick_signal_generator, moving_average_signal_generator, get_first_last_market_days, alpaca_can_query_today_closing_price
-from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
 
 
 class TestTrading(unittest.TestCase):

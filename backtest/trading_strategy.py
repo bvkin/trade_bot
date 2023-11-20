@@ -1,5 +1,5 @@
 from backtesting import Strategy
-from trade_bot.trading import BEARISH, BULLISH
+from core.models.trade_signal import TradeSignal
 
 def SIGNAL(df):
     return df.signal
@@ -11,7 +11,7 @@ class TradingStrategy(Strategy):
     def next(self):
         price = self.data.Close[-1]
 
-        if self.signal1==BULLISH:
+        if self.signal1==TradeSignal.BULLISH.value:
             self.buy(tp=1.15*price, sl=0.95*price)
-        elif self.signal1==BEARISH:
+        elif self.signal1==TradeSignal.BEARISH.value:
             self.position.close()

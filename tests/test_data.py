@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from trade_bot.trading import BEARISH, BULLISH, NO_CLEAR_PATTERN
+from core.models.trade_signal import TradeSignal
 import pytz
 
 moving_averages_test_cases = [
@@ -8,28 +8,28 @@ moving_averages_test_cases = [
         "ticker": "GOOGL",
         "description": "5_day_ma == 100.4, 20_day_ma == 100.1, prev_day_ma_5 == 99.8, prev_day_ma_20 == 99.95",
         "close_prices": [100 for _ in range(16)] + [99, 99, 100, 101, 103],
-        "expected": BULLISH
+        "expected": TradeSignal.BULLISH
     },
     {
         "name": "bearish",
         "ticker": "AAPL",
         "description": "5_day_ma == 103, 20_day_ma == 110.5",
         "close_prices": [100 for _ in range(16)] + [102, 101, 100, 99, 97],
-        "expected": BEARISH
+        "expected": TradeSignal.BEARISH
     },
     {
         "name": "bearish",
         "ticker": "MSFT",
         "description": "5_day_ma == 100, 20_day_ma == 100",
         "close_prices": [100 for _ in range(21)] ,
-        "expected": NO_CLEAR_PATTERN
+        "expected": TradeSignal.NO_CLEAR_PATTERN
     },
     {
         "name": "index_error",
         "ticker": "AMD",
         "description": "trigger index out of bounds exception",
         "close_prices": [100 for _ in range(21)],
-        "expected": NO_CLEAR_PATTERN
+        "expected": TradeSignal.NO_CLEAR_PATTERN
     }
 ]
 
@@ -41,7 +41,7 @@ engulfing_candlestick_test_cases = [
         "previous_open": 7,
         "previous_close": 8,
         "index": ["2023-07-25", "2023-07-26"],
-        "expected": 1
+        "expected": TradeSignal.BEARISH
     },
     {
         "name": "bullish",
@@ -50,7 +50,7 @@ engulfing_candlestick_test_cases = [
         "previous_open": 12,
         "previous_close": 11,
         "index": ["2023-07-25", "2023-07-26"],
-        "expected": 2
+        "expected": TradeSignal.BULLISH
     },
     {
         "name": "no clear pattern",
@@ -59,7 +59,7 @@ engulfing_candlestick_test_cases = [
         "previous_open": 10,
         "previous_close": 11,
         "index": ["2023-07-25", "2023-07-26"],
-        "expected": 0
+        "expected": TradeSignal.NO_CLEAR_PATTERN
     }
 ]
 
