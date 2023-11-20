@@ -9,7 +9,7 @@ import os
 import pandas as pd
 from trading_strategy import TradingStrategy
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
-from trade_bot.trading import moving_average_signal_generator
+from core.trading.moving_averages import moving_average_signal_generator
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ import datetime
 from dotenv import load_dotenv
 import logging
 import os
-from trading import make_orders
+from trade_bot.make_orders import make_orders
 
 # Set global logging level to INFO
 logging.basicConfig(level=logging.INFO)

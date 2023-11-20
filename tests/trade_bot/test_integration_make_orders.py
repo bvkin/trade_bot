@@ -1,8 +1,8 @@
 from pandas import DataFrame
 import pytest
 from unittest.mock import call, MagicMock, patch
-from .test_data import moving_averages_test_cases
-from trade_bot.trading import make_orders
+from tests.test_data import moving_averages_test_cases
+from trade_bot.make_orders import make_orders
 
 tickers = [case["ticker"] for case in moving_averages_test_cases]
 close_prices = [case["close_prices"] for case in moving_averages_test_cases]
@@ -28,7 +28,7 @@ def mock_trade_manager():
 def mock_sns_client():
     return MagicMock()
 
-@patch("trade_bot.trading.get_market_day_range", return_value=("2023-01-01", "2023-01-21"))
+@patch("core.utils.market_time.get_market_day_range", return_value=("2023-01-01", "2023-01-21"))
 def test_make_orders(mock_get_days, mock_trade_manager, mock_sns_client):
 
     mock_sns_topic_arn = "arn:aws:sns:us-east-1:123456789101:trade_bot_signals"
