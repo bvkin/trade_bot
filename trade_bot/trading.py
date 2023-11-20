@@ -1,4 +1,4 @@
-from trade_bot.alpaca_trade_manager import AlpacaTradeManager
+from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 from core.models.trade_signal import TradeSignal
 from core.utils.market_time import get_market_day_range
 from boto3_type_annotations.sns import Client as SNSClient

@@ -3,7 +3,7 @@ import unittest
 from pandas import DataFrame, Series
 from unittest.mock import patch, Mock
 from tests.test_data import moving_averages_test_cases, engulfing_candlestick_test_cases
-from trade_bot.alpaca_trade_manager import AlpacaTradeManager
+from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 from trade_bot.trading import engulfing_candlestick_signal_generator, moving_average_signal_generator
 
 

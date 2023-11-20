@@ -1,5 +1,5 @@
-from trade_bot.alpaca_trade_manager import AlpacaTradeManager
 from apscheduler.schedulers.blocking import BlockingScheduler
+from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 import boto3
 import datetime
 from dotenv import load_dotenv
