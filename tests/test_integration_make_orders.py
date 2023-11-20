@@ -2,7 +2,7 @@ from pandas import DataFrame
 import pytest
 from unittest.mock import call, MagicMock, patch
 from .test_data import moving_averages_test_cases
-from trade_bot.trading import make_orders, BEARISH, BULLISH, NO_CLEAR_PATTERN
+from trade_bot.trading import make_orders
 
 tickers = [case["ticker"] for case in moving_averages_test_cases]
 close_prices = [case["close_prices"] for case in moving_averages_test_cases]

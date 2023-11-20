@@ -35,7 +35,7 @@ if __name__ == '__main__':
     back_avg = 21
     for row in range(back_avg, len(df)):
         row_start = row - back_avg
-        signal[row] = moving_average_signal_generator(df.iloc[row_start:row].copy())
+        signal[row] = moving_average_signal_generator(df.close[row_start:row]).value
     df['signal']=signal
 
     # Format dataframe to conform with backtesting library

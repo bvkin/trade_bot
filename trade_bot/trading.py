@@ -1,16 +1,15 @@
 from trade_bot.alpaca_trade_manager import AlpacaTradeManager
+from core.models.trade_signal import TradeSignal
 from boto3_type_annotations.sns import Client as SNSClient
 from datetime import datetime, date, time, timedelta
 import pandas as pd
 import pytz
 import talib
-from typing import List, Literal, Tuple
+from typing import List, Tuple
 import logging
 import pandas_market_calendars as mcal
 
 
-# Constants for the signal generator
-BEARISH, BULLISH, NO_CLEAR_PATTERN = 1, 2, 0
 
 def get_first_last_market_days(market_days_period: int) -> Tuple[str, str]:
     """
@@ -65,7 +64,7 @@ def alpaca_can_query_today_closing_price() -> bool:
     return query_today
 
 
-def moving_average_signal_generator(closes: pd.Series, short_window: int = 5, long_window: int = 20) -> Literal[1, 2, 0]:
+def moving_average_signal_generator(closes: pd.Series, short_window: int = 5, long_window: int = 20) -> TradeSignal:
     """
     Genarates signals based on 5 and 20 day smoving averages
     Parameters:
@@ -73,7 +72,7 @@ def moving_average_signal_generator(closes: pd.Series, short_window: int = 5, lo
         short_window (int): Integer value representing shorter moving average window
         long_window (int): Integer value representing longer moving average window
     Returns:
-        signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
+        signal (TradeSignal): An enum object representing if the strategy signals buy/sell/hold
     """
     # Get moving averages for short and long windows
     # Grab tail of long_window +1 for to prevent longer roller periods when backtesting
@@ -82,17 +81,17 @@ def moving_average_signal_generator(closes: pd.Series, short_window: int = 5, lo
         long_window_ma = talib.SMA(closes.tail(long_window + 1), timeperiod=long_window).values
     except IndexError:
         logging.warning(f"Unable to interpret required data")
-        return NO_CLEAR_PATTERN
+        return TradeSignal.NO_CLEAR_PATTERN
     
     # Generate signals
     if short_window_ma[-1] > long_window_ma[-1] and short_window_ma[-2] <= long_window_ma[-2]: # 5 day crosses above 20 day
-        return BULLISH
+        return TradeSignal.BULLISH
     elif short_window_ma[-1] < long_window_ma[-1] and  short_window_ma[-2] >= long_window_ma[-2]: # 5 day drops below 20 day
-        return BEARISH
+        return TradeSignal.BEARISH
     else:
-        return NO_CLEAR_PATTERN
+        return TradeSignal.NO_CLEAR_PATTERN
     
-def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]:
+def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> TradeSignal:
     """
     Returns a signal based on the price data of a given ticker.
     Uses engulfing candlestick pattern.
@@ -100,7 +99,7 @@ def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]
         df (TradeManager): A pandas dataframe of format from Alpaca Trade API for which to check moving averages
 
     Returns:
-        signal (int): An in representing the signal, which could be BULLISH, BEARISH, or NO_CLEAR_PATTERN.
+        signal (TradeSignal): An enum object representing if the strategy signals buy/sell/hold
     """
     try:
         open = df.iloc[1, df.columns.get_loc('open')]
@@ -109,7 +108,7 @@ def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]
         previous_close = df.iloc[0, df.columns.get_loc('close')]
     except IndexError:
         logging.warning(f"Unable to interpret required data")
-        return NO_CLEAR_PATTERN
+        return TradeSignal.NO_CLEAR_PATTERN
 
     if (
         open > close and 
@@ -117,7 +116,7 @@ def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]
         close < previous_open and
         open >= previous_close
     ):
-        return BEARISH
+        return TradeSignal.BEARISH
 
     # Bullish Pattern
     elif (
@@ -126,11 +125,11 @@ def engulfing_candlestick_signal_generator(df: pd.DataFrame) -> Literal[1, 2, 0]
         close > previous_open and
         open <= previous_close
     ):
-        return BULLISH
+        return TradeSignal.BULLISH
     
     # No clear pattern
     else:
-        return NO_CLEAR_PATTERN
+        return TradeSignal.NO_CLEAR_PATTERN
 
 
 def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_client: SNSClient,  sns_topic_arn: str = None) -> None:
@@ -146,7 +145,7 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
         logging.info("Evaluating " + ticker + " for buy")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
         signal = moving_average_signal_generator(df.close)
-        if signal == BULLISH:
+        if signal == TradeSignal.BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
             purchased_tickers.append(ticker)
@@ -160,7 +159,7 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
         logging.info("Evaluating " + ticker + " for sell")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
         signal = moving_average_signal_generator(df.close)
-        if signal == BEARISH:
+        if signal == TradeSignal.BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
             sold_tickers.append(ticker)
