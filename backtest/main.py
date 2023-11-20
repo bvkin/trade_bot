@@ -30,14 +30,6 @@ if __name__ == '__main__':
 
     df = trade_manager.get_price_data(args.ticker, start_period.strftime("%Y-%m-%d"), end_period.strftime("%Y-%m-%d"), adjustment='split')
 
-    # Add buy/sell signals to dataframe
-    signal = [0] * len(df)
-    back_avg = 21
-    for row in range(back_avg, len(df)):
-        row_start = row - back_avg
-        signal[row] = moving_average_signal_generator(df.close[row_start:row]).value
-    df['signal']=signal
-
     # Format dataframe to conform with backtesting library
     df.drop(columns=['trade_count', 'vwap'], inplace=True)
 
@@ -48,7 +40,7 @@ if __name__ == '__main__':
     df = df.set_index('dates')
 
     # Set column names to backtest standard
-    df.columns = ['Open', 'High', 'Low', 'Close', 'Volume', 'signal']
+    df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
 
     # Backtest
     bt = Backtest(df, TradingStrategy, cash=10_000, commission=.002)

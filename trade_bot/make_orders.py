@@ -1,5 +1,5 @@
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
-from core.trading.moving_averages import moving_average_signal_generator
+from core.trading.moving_averages import MovingAverages
 from core.models.trade_signal import TradeSignal
 from core.utils.market_time import get_market_day_range
 from boto3_type_annotations.sns import Client as SNSClient
@@ -18,8 +18,13 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
     logging.info("Making orders...")
     for ticker in tickers:
         logging.info("Evaluating " + ticker + " for buy")
+
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_signal_generator(df.close)
+        ma = MovingAverages(df.close)
+        short_window_ma = ma.gen_moving_average(5)
+        long_window_ma  = ma.gen_moving_average(20)
+        signal = ma.signal(short_window_ma, long_window_ma)
+        
         if signal == TradeSignal.BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
@@ -32,8 +37,13 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
 
     for ticker in owned_tickers:
         logging.info("Evaluating " + ticker + " for sell")
+        
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        signal = moving_average_signal_generator(df.close)
+        ma = MovingAverages(df.close)
+        short_window_ma = ma.gen_moving_average(5)
+        long_window_ma  = ma.gen_moving_average(20)
+        signal = ma.signal(short_window_ma, long_window_ma)
+
         if signal == TradeSignal.BEARISH:
             trade_manager.sell_stock(ticker)
             logging.info("Sell order for " + ticker + " placed.")
