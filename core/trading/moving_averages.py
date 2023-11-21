@@ -1,7 +1,7 @@
 from core.models.trade_signal import TradeSignal
 import logging
 import pandas as pd
-import talib
+from talib import SMA
 
 class MovingAverages():
     def __init__(self, close_prices, short_window=5, long_window=20):
@@ -17,7 +17,7 @@ class MovingAverages():
 
     def gen_ma(self, window: int) -> pd.Series:
         try:
-            return talib.SMA(self.close_prices, timeperiod=window)
+            return SMA(self.close_prices, timeperiod=window)
         except IndexError:
             logging.warning(f"Unable to interpret required data")
             return []

@@ -2,7 +2,7 @@ from backtesting import Strategy
 from core.models.trade_signal import TradeSignal
 from core.trading.moving_averages import MovingAverages
 
-class TradingStrategy(Strategy):
+class MovingAveragesStrategy(Strategy):
     short_window = 5
     long_window  = 20
 

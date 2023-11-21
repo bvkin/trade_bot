@@ -7,9 +7,9 @@ import datetime
 from dotenv import load_dotenv
 import os
 import pandas as pd
-from trading_strategy import TradingStrategy
+from backtest.moving_averages_strategy import MovingAveragesStrategy
+from backtest.engulfing_candlesticks_strategy import EngulfingCandlesticksStrategy
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
-from core.trading.moving_averages import moving_average_signal_generator
 
 
 if __name__ == '__main__':
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
 
     # Backtest
-    bt = Backtest(df, TradingStrategy, cash=10_000, commission=.002)
+    bt = Backtest(df, EngulfingCandlesticksStrategy, cash=10_000, commission=.002)  
     stat = bt.run()
     print(stat)
 

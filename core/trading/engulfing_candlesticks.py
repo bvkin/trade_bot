@@ -1,47 +1,29 @@
 from core.models.trade_signal import TradeSignal
 import pandas as pd
 import logging
+import numpy as np
+from talib import CDLENGULFING
 
 class EngulfingCandlesticks():
-    def __init__(self, open_prices, close_prices):
-        try:
-            self.open       = open_prices[-1]
-            self.prev_open  = open_prices[-2]
-            self.close      = close_prices[-1]
-            self.prev_close = close_prices[-2]
-        except KeyError:
-            self.open       = open_prices.tolist()[-1]
-            self.prev_open  = open_prices.tolist()[-2]
-            self.close      = close_prices.tolist()[-1]
-            self.prev_close = close_prices.tolist()[-2]
+    def __init__(self, open_prices, high_prices, low_prices, close_prices):
+        self.signals = CDLENGULFING(
+            open=open_prices,
+            high=high_prices,
+            low=low_prices,
+            close=close_prices
+        )
     
-    def get_open(self):
-        return self.open
-    
-    def get_prev_open(self):
-        return self.prev_open
-    
-    def get_close(self):
-        return self.close
-    
-    def get_prev_close(self):
-        return self.get_prev_close
-    
-    def signal(self, open=None, prev_open=None, close=None, prev_close=None):
+    def get_signals(self):
+        return self.signals
+
+    def signal(self, signals=None):
         # For compatability with backtesting
-        if open == None:
-            open = self.open
-        if prev_open == None:
-            prev_open = self.prev_open
-        if close == None:
-            close = self.close
-        if prev_close == None:
-            prev_close = self.prev_close
+        if signals == None:
+            signals = self.signals.tolist()
 
-
-        if open > close and prev_open < prev_close and close < prev_open and open >= prev_close:
+        if signals[-1] == -100:
             return TradeSignal.BEARISH
-        elif open < close and prev_open > prev_close and close > prev_open and open <= prev_close:
+        elif signals[-1] == 100:
             return TradeSignal.BULLISH
         else:
             return TradeSignal.NO_CLEAR_PATTERN
