@@ -1,9 +1,9 @@
 import logging
 import unittest
-from pandas import DataFrame
+from pandas import Series
 from unittest.mock import patch
 from tests.test_data import engulfing_candlestick_test_cases
-from core.trading.engulfing_candlesticks import engulfing_candlestick_signal_generator
+from core.trading.engulfing_candlesticks import EngulfingCandlesticks
 
 
 class TestEngulfingCandleSticks(unittest.TestCase):
@@ -11,15 +11,10 @@ class TestEngulfingCandleSticks(unittest.TestCase):
     def test_engulfing_candlestick_signal_generator(self, mock_get_market_day_range):
         for test_case in engulfing_candlestick_test_cases:
             with self.subTest(msg=test_case["name"]):
-                df = DataFrame(
-                    {
-                     'open': [test_case["previous_open"], test_case["open"]],
-                     'close': [test_case["previous_close"], test_case["close"]]
-                    },
-                    index=test_case["index"]
-                )
-
-                self.assertEqual(engulfing_candlestick_signal_generator(df), test_case["expected"])
+                opens = Series([test_case["previous_open"], test_case["open"]])
+                closes = Series([test_case["previous_close"], test_case["close"]])
+                strat = EngulfingCandlesticks(open_prices=opens,close_prices=closes)
+                self.assertEqual(strat.signal(), test_case["expected"])
 
 
 
