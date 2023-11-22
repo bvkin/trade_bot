@@ -13,9 +13,16 @@ from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 
 
 if __name__ == '__main__':
+
+    strategy_choices = {
+        "MovingAverages": MovingAveragesStrategy,
+        "EngulfingCandlesticks": EngulfingCandlesticksStrategy
+    }
+
     parser = argparse.ArgumentParser(description="Backtest a given stock over a given period")
-    parser.add_argument("ticker", help="Stock ticker to perform backtesting on")
-    parser.add_argument("period", default=3, help="Period in years for which to pull data for backtesting")
+    parser.add_argument("--strategy", choices=list(strategy_choices.keys()), help="Strategy to run")
+    parser.add_argument("--ticker", help="Stock ticker to perform backtesting on")
+    parser.add_argument("--period", default=1, help="Period in years for which to pull data for backtesting")
     args = parser.parse_args()
 
     load_dotenv()
@@ -42,8 +49,10 @@ if __name__ == '__main__':
     # Set column names to backtest standard
     df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
 
+    strat = strategy_choices[args.strategy]
+
     # Backtest
-    bt = Backtest(df, EngulfingCandlesticksStrategy, cash=10_000, commission=.002)  
+    bt = Backtest(df, strat, cash=10_000, commission=.002)
     stat = bt.run()
     print(stat)
 
