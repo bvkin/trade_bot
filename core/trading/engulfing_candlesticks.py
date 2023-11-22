@@ -1,10 +1,8 @@
 from core.models.trade_signal import TradeSignal
-import pandas as pd
-import logging
-import numpy as np
+from core.trading.strategy import Strategy
 from talib import CDLENGULFING
 
-class EngulfingCandlesticks():
+class EngulfingCandlesticks(Strategy):
     def __init__(self, open_prices, high_prices, low_prices, close_prices):
         self.signals = CDLENGULFING(
             open=open_prices,
