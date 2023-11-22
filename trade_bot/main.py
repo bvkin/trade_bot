@@ -1,5 +1,8 @@
+import argparse
 from apscheduler.schedulers.blocking import BlockingScheduler
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
+from core.trading.moving_averages import MovingAverages
+from core.trading.engulfing_candlesticks import EngulfingCandlesticks
 import boto3
 import datetime
 from dotenv import load_dotenv
@@ -14,7 +17,22 @@ logging.basicConfig(level=logging.INFO)
 apscheduler_logger = logging.getLogger('apscheduler.scheduler')
 apscheduler_logger.setLevel(logging.WARNING)
 
+def parse_tickers(tickers):
+    return [ticker.strip() for ticker in tickers.split(',')]
+
 if __name__ == '__main__':
+    strategy_choices = {
+        "MovingAverages": MovingAverages,
+        "EngulfingCandlesticks": EngulfingCandlesticks
+    }
+
+    parser = argparse.ArgumentParser(description="Bot to automatically manage a stock portfolio")
+    parser.add_argument("--strategy", choices=list(strategy_choices.keys()), help="Strategy to run")
+    parser.add_argument("--tickers", type=parse_tickers, help="A comma separated list of tickers to evaluate with strategy")
+    args = parser.parse_args()
+
+    strat = strategy_choices[args.strategy]
+
     load_dotenv()
     api_key = os.getenv('ALPACA_API_KEY')
     secret_key = os.getenv('ALPACA_SECRET_KEY')
@@ -24,10 +42,8 @@ if __name__ == '__main__':
     sns_topic_arn = os.getenv('AWS_SNS_TOPIC_ARN')
     sns_client = boto3.client("sns", region_name=aws_region)
 
-    tickers = os.getenv('TICKERS').split(',')
-
     logging.info("Running order scheduler...")
     current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     scheduler = BlockingScheduler()
-    scheduler.add_job(make_orders, 'cron', args=[trade_manager, tickers, sns_client, sns_topic_arn], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
+    scheduler.add_job(make_orders, 'cron', args=[trade_manager, strat, args.tickers, sns_client, sns_topic_arn], start_date=current_time, day_of_week='mon-fri',hour=9, timezone='US/Eastern')
     scheduler.start()

@@ -1,3 +1,4 @@
+from core.trading.moving_averages import MovingAverages
 from pandas import DataFrame
 import pytest
 from unittest.mock import call, MagicMock, patch
@@ -32,7 +33,7 @@ def mock_sns_client():
 def test_make_orders(mock_get_days, mock_trade_manager, mock_sns_client):
 
     mock_sns_topic_arn = "arn:aws:sns:us-east-1:123456789101:trade_bot_signals"
-    make_orders(trade_manager=mock_trade_manager,tickers=tickers, sns_client=mock_sns_client, sns_topic_arn=mock_sns_topic_arn)
+    make_orders(trade_manager=mock_trade_manager, Strategy=MovingAverages, tickers=tickers, sns_client=mock_sns_client, sns_topic_arn=mock_sns_topic_arn)
     
     # Ensure buy_stock was called for BULLISH signal
     mock_trade_manager.buy_stock.assert_called_once_with("GOOGL")

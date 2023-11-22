@@ -1,5 +1,6 @@
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
-from core.trading.moving_averages import MovingAverages
+from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
+from core.trading.strategy import Strategy
 from core.models.trade_signal import TradeSignal
 from core.utils.market_time import get_market_day_range
 from boto3_type_annotations.sns import Client as SNSClient
@@ -7,7 +8,7 @@ from typing import List
 import logging
 
 
-def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_client: SNSClient,  sns_topic_arn: str = None) -> None:
+def make_orders(trade_manager: AlpacaTradeManager, Strategy: Strategy, tickers: List[str], sns_client: SNSClient,  sns_topic_arn: str = None) -> None:
     """
     Makes buy orders for all stocks in the S&P 500 given a bullish signal.
     Makes sell orders for all owned stocks bearish signal.
@@ -20,7 +21,7 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
         logging.info("Evaluating " + ticker + " for buy")
 
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        strat = MovingAverages(df.close, short_window=5, long_window=20)
+        strat = Strategy(df.close)
 
         if strat.signal() == TradeSignal.BULLISH:
             trade_manager.buy_stock(ticker)
@@ -36,7 +37,7 @@ def make_orders(trade_manager: AlpacaTradeManager, tickers: List[str], sns_clien
         logging.info("Evaluating " + ticker + " for sell")
         
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        strat = MovingAverages(df.close, short_window=5, long_window=20)
+        strat = Strategy(df.close)
 
         if strat.signal() == TradeSignal.BEARISH:
             trade_manager.sell_stock(ticker)
