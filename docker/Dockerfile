@@ -20,4 +20,4 @@ RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
 
 RUN pip install --no-cache-dir . --upgrade pip
 
-CMD ["python", "trade_bot/main.py"]
+ENTRYPOINT ["python", "trade_bot/main.py"]
