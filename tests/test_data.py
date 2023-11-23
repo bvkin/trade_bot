@@ -36,6 +36,7 @@ moving_averages_test_cases = [
 engulfing_candlestick_test_cases = [
     {
         "name": "bearish",
+        "ticker": "GOOGL",
         "open": 134.76,
         "close": 132.03,
         "high": 134.92,
@@ -48,6 +49,7 @@ engulfing_candlestick_test_cases = [
     },
     {
         "name": "bullish",
+        "ticker": "AAPL",
         "open": 150.59,
         "high": 154.54,
         "low": 131.66,
@@ -60,6 +62,7 @@ engulfing_candlestick_test_cases = [
     },
     {
         "name": "no clear pattern",
+        "ticker": "MSFT",
         "open": 153.47,
         "high": 154.54,
         "low": 131.66,

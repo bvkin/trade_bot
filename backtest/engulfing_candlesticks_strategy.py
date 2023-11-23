@@ -4,7 +4,7 @@ from core.trading.engulfing_candlesticks import EngulfingCandlesticks
 
 class EngulfingCandlesticksStrategy(Strategy):
     def init(self):
-        self.strat = EngulfingCandlesticks(open_prices=self.data.Open, high_prices=self.data.High, low_prices=self.data.Low, close_prices=self.data.Close)
+        self.strat = EngulfingCandlesticks(self.data.df)
         self.signals = self.I(self.strat.get_signals)
 
     def next(self):

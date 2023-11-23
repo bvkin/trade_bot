@@ -1,5 +1,5 @@
 import unittest
-from pandas import Series
+from pandas import DataFrame
 from tests.test_data import engulfing_candlestick_test_cases
 from core.trading.engulfing_candlesticks import EngulfingCandlesticks
 
@@ -9,17 +9,14 @@ class TestEngulfingCandleSticks(unittest.TestCase):
         for test_case in engulfing_candlestick_test_cases:
             with self.subTest(msg=test_case["name"]):
                 # talib needs three values to give a signal
-                opens = Series([100, test_case["prev_open"], test_case["open"]])
-                closes = Series([100, test_case["prev_close"], test_case["close"]])
-                highs = Series([100, test_case["prev_high"], test_case["high"]])
-                lows = Series([100, test_case["prev_low"], test_case["low"]])
+                df = DataFrame({
+                    "open" : [100, test_case["prev_open"], test_case["open"]],
+                    "high" : [100, test_case["prev_high"], test_case["high"]],
+                    "low"  : [100, test_case["prev_low"], test_case["low"]],
+                    "close": [100, test_case["prev_close"], test_case["close"]]
+                })
 
-                strat = EngulfingCandlesticks(
-                    open_prices=opens, 
-                    high_prices=highs,
-                    low_prices=lows,
-                    close_prices=closes
-                )
+                strat = EngulfingCandlesticks(df)
                 self.assertEqual(strat.signal(), test_case["expected"])
 
 

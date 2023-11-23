@@ -7,7 +7,7 @@ class MovingAveragesStrategy(Strategy):
     long_window  = 20
 
     def init(self):
-        self.strat = MovingAverages(self.data.Close, self.short_window, self.long_window)
+        self.strat = MovingAverages(self.data.df, self.short_window, self.long_window)
         self.short_window_ma = self.I(self.strat.get_short_window_ma)
         self.long_window_ma = self.I(self.strat.get_long_window_ma)
 

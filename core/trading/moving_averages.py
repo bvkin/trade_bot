@@ -1,12 +1,13 @@
 from core.models.trade_signal import TradeSignal
 from core.trading.strategy import Strategy
+from core.utils.column import find_column_ignore_case
 import logging
 import pandas as pd
 from talib import SMA
 
 class MovingAverages(Strategy):
-    def __init__(self, close_prices, short_window=5, long_window=20):
-        self.close_prices = close_prices
+    def __init__(self, df, short_window=5, long_window=20):
+        self.close_prices = find_column_ignore_case(df, 'close')
         self.short_window_ma = self.gen_ma(short_window)
         self.long_window_ma = self.gen_ma(long_window)
 
