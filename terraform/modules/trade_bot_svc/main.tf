@@ -34,20 +34,12 @@ resource "aws_ecs_task_definition" "this" {
       "name" = var.name,
       "image" = "${var.ecr_repo}:${var.image_tag}",
       "portMappings" = [],
-      "command": var.ecs_command,
+      "command": ["--strategy", var.strategy, "--tickers", join(",", var.tickers)],
       "environment" = [
         {
           name = "AWS_SNS_TOPIC_ARN"
           value = var.sns_topic_arn
-        },
-        {
-          name = "STRATEGY"
-          value = var.strategy
-        },
-        {
-          name = "TICKERS"
-          value = join(",", var.tickers)
-        },
+        }
       ],
       "secrets" = [
         {

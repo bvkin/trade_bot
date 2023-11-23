@@ -41,12 +41,6 @@ variable "ecs_memory" {
   default     = 512
 }
 
-variable "ecs_command" {
-  description = "Command to run inside task"
-  type = list(string)
-  default = ["python", "trade_bot/main.py", "--strategy", "$STRATEGY", "--tickers", "$TICKERS"]
-}
-
 variable "sns_topic_arn" {
   description = "SNS topic arn for publishing messages"
   type = string
