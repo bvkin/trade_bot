@@ -19,6 +19,7 @@ class BBandsRSI(Strategy):
             "bbands_upper": bbands_upper,
             "bbands_middle": bbands_middle,
             "bbands_lower": bbands_lower,
+            "trading_sideways": self.trading_sideways(bbands_upper, bbands_lower),
             "rsi": RSI(close, timeperiod=14)
         }
     
@@ -28,26 +29,25 @@ class BBandsRSI(Strategy):
         """
         return self.indicators[name]
 
-    def rsi_lows(self):
-        inverse = -self.rsi
+    def rsi_lows(self, rsi):
+        inverse = -rsi
         prominence_threshold = inverse.std() * 1.5
         low_indicies, _ = find_peaks(inverse.values, prominence=prominence_threshold)
         rsi_lows  = self.rsi.iloc[low_indicies]
         return rsi_lows
     
-    def close_lows(self):
-        tail = self.close.tail(60)
+    def close_lows(self, close):
+        tail = close.tail(60)
         inverse = -tail
         prominence_threshold = inverse.std()
         low_indicies, _ = find_peaks(inverse.values, prominence=prominence_threshold)
         close_lows = self.close.iloc[low_indicies]
         return close_lows
     
-    def trading_sideways(self):
-        band_width = self.bbands_upper - self.bbands_lower
-        current_band_width = band_width[-1]
-        side_ways_percentile = percentile(band_width.dropna(), 30)
-        is_sideways = current_band_width <= side_ways_percentile
+    def trading_sideways(self, bbands_upper, bbands_lower):
+        band_width = bbands_upper - bbands_lower
+        quantile = band_width.quantile(0.25)
+        is_sideways = band_width < quantile
         return is_sideways
 
     def signal(self, indicators: dict = None):
@@ -57,17 +57,18 @@ class BBandsRSI(Strategy):
 
         close = indicators["close"]
         bbands_upper = indicators["bbands_upper"]
-        bbands_middle = indicators["bbands_middle"]
         bbands_lower = indicators["bbands_lower"]
+        trading_sideways = indicators["trading_sideways"]
         rsi = indicators["rsi"]
 
-        # if self.trading_sideways():
-        #     close_lows = self.close_lows()
-        #     rsi_lows = self.rsi_lows()
-        #     if close_lows[-1] < close_lows[-2] and rsi_lows[-1] > rsi_lows[-2]:
-        #         return TradeSignal.BULLISH
-        #     else:
-        #         return TradeSignal.BEARISH
+        if trading_sideways[-1]:
+            print("trading sideways!")
+            # close_lows = self.close_lows(close)
+            # rsi_lows = self.rsi_lows(rsi)
+            # if close_lows[-1] < close_lows[-2] and rsi_lows[-1] > rsi_lows[-2]:
+            #     return TradeSignal.BULLISH
+            # else:
+            #     return TradeSignal.BEARISH
 
         if float(close[-1]) < float(bbands_lower[-1]) and float(rsi[-1]) < 30:
             return TradeSignal.BULLISH
