@@ -9,14 +9,16 @@ import os
 import pandas as pd
 from backtest.moving_averages_strategy import MovingAveragesStrategy
 from backtest.engulfing_candlesticks_strategy import EngulfingCandlesticksStrategy
+from backtest.bbands_rsi_strategy import BBandsRSIStrategey
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 
 
 if __name__ == '__main__':
 
     strategy_choices = {
+        "BBandsRSI": BBandsRSIStrategey,
+        "EngulfingCandlesticks": EngulfingCandlesticksStrategy,
         "MovingAverages": MovingAveragesStrategy,
-        "EngulfingCandlesticks": EngulfingCandlesticksStrategy
     }
 
     parser = argparse.ArgumentParser(description="Backtest a given stock over a given period")

@@ -9,26 +9,31 @@ class EngulfingCandlesticks(Strategy):
     Class representing the engulfing candlesticks trading strategy
     """
     def __init__(self, df: pd.DataFrame) -> None:
-        self.signals = CDLENGULFING(
-            open=find_column_ignore_case(df, "open"),
-            high=find_column_ignore_case(df, "high"),
-            low=find_column_ignore_case(df, "low"),
-            close=find_column_ignore_case(df, "close")
-        )
+        self.indicators = {
+            "signals" : CDLENGULFING(
+                            open=find_column_ignore_case(df, "open"),
+                            high=find_column_ignore_case(df, "high"),
+                            low=find_column_ignore_case(df, "low"),
+                            close=find_column_ignore_case(df, "close")
+            ).tolist()
+        }
+        
     
-    def get_signals(self) -> pd.Series:
+    def get_indicator(self, name) -> pd.Series:
         """
-        Returns a pandas data series representing trade signals based on the engulfing candlestick strategy
+        Returns inicator specified by input name
         """
-        return self.signals
+        return self.indicators[name]
 
-    def signal(self, signals: pd.Series = None) -> TradeSignal:
+    def signal(self, indicators: dict = None) -> TradeSignal:
         """
         Returns a trade signal for the most recent day in the self.signals series
         """
         # For compatability with backtesting
-        if signals == None:
-            signals = self.signals.tolist()
+        if indicators == None:
+            indicators = self.indicators
+
+        signals = indicators["signals"]
 
         if signals[-1] == -100:
             return TradeSignal.BEARISH

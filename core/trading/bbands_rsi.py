@@ -7,20 +7,27 @@ from talib import BBANDS, RSI
 import pandas as pd
 
 
-class EngulfingCandlesticks(Strategy):
+class BBandsRSI(Strategy):
     def __init__(self, df: pd.DataFrame) -> None:
-        self.close=find_column_ignore_case(df, "close")
-        self.bbands_upper, self.bbands_middle, self.bbands_lower = BBANDS(self.close, timeperiod=20)
-        self.rsi = RSI(self.close, timeperiod=14)
+        # Set indicators
+        close = find_column_ignore_case(df, "close")
+        bbands_upper, bbands_middle, bbands_lower = BBANDS(close, timeperiod=20)
 
-    def get_indicators(self):
-        return {
-            "bbands_upper": self.bbands_upper,
-            "bbands_middle": self.bbands_middle,
-            "bbands_lower": self.bbands_lower,
-            "rsi": self.rsi
+        # Save indicators
+        self.indicators =  {
+            "close": close,
+            "bbands_upper": bbands_upper,
+            "bbands_middle": bbands_middle,
+            "bbands_lower": bbands_lower,
+            "rsi": RSI(close, timeperiod=14)
         }
     
+    def get_indicator(self, name: str) -> dict:
+        """
+        Returns inicator specified by input name
+        """
+        return self.indicators[name]
+
     def rsi_lows(self):
         inverse = -self.rsi
         prominence_threshold = inverse.std() * 1.5
@@ -39,20 +46,32 @@ class EngulfingCandlesticks(Strategy):
     def trading_sideways(self):
         band_width = self.bbands_upper - self.bbands_lower
         current_band_width = band_width[-1]
-        side_ways_percentile = percentile(band_width.dropna(), 20)
+        side_ways_percentile = percentile(band_width.dropna(), 30)
         is_sideways = current_band_width <= side_ways_percentile
         return is_sideways
 
-    def signal(self):
-        if self.trading_sideways():
-            close_lows = self.close_lows()
-            rsi_lows = self.rsi_lows()
-            if close_lows[-1] < close_lows[-2] and rsi_lows[-1] > rsi_lows[-2]:
-                return TradeSignal.BULLISH
-            else:
-                return TradeSignal.BEARISH
+    def signal(self, indicators: dict = None):
+        # For compatability with backtesting
+        if indicators == None:
+            indicators = self.indicators
+
+        close = indicators["close"]
+        bbands_upper = indicators["bbands_upper"]
+        bbands_middle = indicators["bbands_middle"]
+        bbands_lower = indicators["bbands_lower"]
+        rsi = indicators["rsi"]
+
+        # if self.trading_sideways():
+        #     close_lows = self.close_lows()
+        #     rsi_lows = self.rsi_lows()
+        #     if close_lows[-1] < close_lows[-2] and rsi_lows[-1] > rsi_lows[-2]:
+        #         return TradeSignal.BULLISH
+        #     else:
+        #         return TradeSignal.BEARISH
+
+        if float(close[-1]) < float(bbands_lower[-1]) and float(rsi[-1]) < 30:
+            return TradeSignal.BULLISH
+        elif float(close[-1]) > float(bbands_upper[-1]) and float(rsi[-1]) > 70:
+            return TradeSignal.BEARISH
         else:
-            if float(self.close[-1]) < float(self.bbands_lower[-1]) and self.rsi[-1] < 25:
-                return TradeSignal.BULLISH
-            elif float(self.close[-1]) > float(self.bbands_upper[-1]) and self.rsi[-1] > 75:
-                return TradeSignal.BEARISH
+            return TradeSignal.NO_CLEAR_PATTERN
