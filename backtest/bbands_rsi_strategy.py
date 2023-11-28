@@ -5,7 +5,7 @@ from core.trading.bbands_rsi import BBandsRSI
 class BBandsRSIStrategey(Strategy):
     def init(self):
         self.strat = BBandsRSI(self.data.df)
-        self.close = self.I(self.strat.get_indicator, "close", plot=False)
+        self.close = self.I(self.strat.get_indicator, "close", plot=False, name="close")
         self.bbands_upper = self.I(self.strat.get_indicator, "bbands_upper", name="bbands_upper")
         self.bbands_middle = self.I(self.strat.get_indicator, "bbands_middle", name="bbands_middle")
         self.bbands_lower = self.I(self.strat.get_indicator, "bbands_lower", name="bbands_lower")
@@ -15,12 +15,12 @@ class BBandsRSIStrategey(Strategy):
     def next(self):
         price = self.data.Close[-1]
         indicators = {
-            "close" : self.close,
-            "bbands_upper" : self.bbands_upper,
-            "bbands_middle" : self.bbands_middle,
-            "bbands_lower" : self.bbands_lower,
-            "trading_sideways" : self.trading_sideways,
-            "rsi" : self.rsi
+            "close" : self.close.df.close,
+            "bbands_upper" : self.bbands_upper.df.bbands_upper,
+            "bbands_middle" : self.bbands_middle.df.bbands_middle,
+            "bbands_lower" : self.bbands_lower.df.bbands_lower,
+            "trading_sideways" : self.trading_sideways.df.trading_sideways,
+            "rsi" : self.rsi.df.rsi
         }
 
         signal = self.strat.signal(indicators)
@@ -28,3 +28,10 @@ class BBandsRSIStrategey(Strategy):
             self.buy(tp=1.15*price, sl=0.95*price)
         elif signal==TradeSignal.BEARISH:
             self.position.close()
+
+    def get_last_60_days_close(self):
+        """
+        Retrieves the last 60 days of closing prices.
+        :return: A Pandas Series containing the last 60 days of close prices.
+        """
+        return self.data.Close[-60:]

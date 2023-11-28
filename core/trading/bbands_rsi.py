@@ -29,20 +29,23 @@ class BBandsRSI(Strategy):
         """
         return self.indicators[name]
 
-    def rsi_lows(self, rsi):
+    def rsi_divergence(self, rsi):
         inverse = -rsi
         prominence_threshold = inverse.std() * 1.5
         low_indicies, _ = find_peaks(inverse.values, prominence=prominence_threshold)
-        rsi_lows  = self.rsi.iloc[low_indicies]
-        return rsi_lows
+        if len(low_indicies) == 0:
+            return False
+        rsi_lows  = rsi.iloc[low_indicies]
+        return rsi[-1] > rsi_lows[-1]
     
-    def close_lows(self, close):
-        tail = close.tail(60)
-        inverse = -tail
+    def close_divergence(self, close):
+        inverse = -close
         prominence_threshold = inverse.std()
         low_indicies, _ = find_peaks(inverse.values, prominence=prominence_threshold)
-        close_lows = self.close.iloc[low_indicies]
-        return close_lows
+        if len(low_indicies) == 0:
+            return False
+        close_lows  = close.iloc[low_indicies]
+        return close[-1] < close_lows[-1]
     
     def trading_sideways(self, bbands_upper, bbands_lower):
         band_width = bbands_upper - bbands_lower
@@ -61,14 +64,12 @@ class BBandsRSI(Strategy):
         trading_sideways = indicators["trading_sideways"]
         rsi = indicators["rsi"]
 
-        if trading_sideways[-1]:
-            print("trading sideways!")
-            # close_lows = self.close_lows(close)
-            # rsi_lows = self.rsi_lows(rsi)
-            # if close_lows[-1] < close_lows[-2] and rsi_lows[-1] > rsi_lows[-2]:
-            #     return TradeSignal.BULLISH
-            # else:
-            #     return TradeSignal.BEARISH
+        if trading_sideways.iloc[-1]:
+            if self.close_divergence(close) and self.rsi_divergence(rsi):
+                print("bullish on trade sideways!")
+                return TradeSignal.BULLISH
+            else:
+                return TradeSignal.BEARISH
 
         if float(close[-1]) < float(bbands_lower[-1]) and float(rsi[-1]) < 30:
             return TradeSignal.BULLISH
