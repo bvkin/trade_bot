@@ -27,3 +27,10 @@ AWS_SNS_TOPIC_ARN
 
 ### Starting the trade bot
 The entrypoint for the trade bot is the `main.py` file located in the `trade_bot` module inside this repo. Visit the module [README.md](./trade_bot/README.md) for startup instructions.
+
+## Tests
+Tests can be run locally using `make`:
+```
+make test
+```
+Additionally these tests will be run on pull requests and merges to main via github actions.
