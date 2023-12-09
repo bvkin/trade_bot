@@ -2,6 +2,8 @@ from backtesting import Strategy
 from core.models.trade_signal import TradeSignal
 from core.trading.bbands_rsi import BBandsRSI
 
+import pandas as pd
+
 class BBandsRSIStrategey(Strategy):
     def init(self):
         self.strat = BBandsRSI(self.data.df)
@@ -28,10 +30,3 @@ class BBandsRSIStrategey(Strategy):
             self.buy(tp=1.15*price, sl=0.95*price)
         elif signal==TradeSignal.BEARISH:
             self.position.close()
-
-    def get_last_60_days_close(self):
-        """
-        Retrieves the last 60 days of closing prices.
-        :return: A Pandas Series containing the last 60 days of close prices.
-        """
-        return self.data.Close[-60:]

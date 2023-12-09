@@ -7,9 +7,9 @@ import datetime
 from dotenv import load_dotenv
 import os
 import pandas as pd
-from backtest.moving_averages_strategy import MovingAveragesStrategy
-from backtest.engulfing_candlesticks_strategy import EngulfingCandlesticksStrategy
-from backtest.bbands_rsi_strategy import BBandsRSIStrategey
+from backtest.strategies.moving_averages import MovingAveragesStrategy
+from backtest.strategies.engulfing_candlesticks import EngulfingCandlesticksStrategy
+from backtest.strategies.bbands_rsi import BBandsRSIStrategey
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 
 
