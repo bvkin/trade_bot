@@ -49,7 +49,13 @@ if __name__ == '__main__':
     df = df.set_index('dates')
 
     # Set column names to backtest standard
-    df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+    df.rename(columns={
+        'open': 'Open',
+        'high': 'High',
+        'low': 'Low',
+        'close': 'Close',
+        'volume': 'Volume'
+    }, inplace=True)
 
     strat = strategy_choices[args.strategy]
 

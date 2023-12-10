@@ -47,9 +47,9 @@ class BBandsRSI(Strategy):
         trading_sideways = indicators["trading_sideways"]
         rsi = indicators["rsi"]
 
-        if trading_sideways.iloc[-1] or (float(close[-1]) > float(bbands_upper[-1]) and float(rsi[-1]) > 70):
+        if trading_sideways.iloc[-1] or (float(close.iloc[-1]) > float(bbands_upper.iloc[-1]) and float(rsi.iloc[-1]) > 70):
             return TradeSignal.BEARISH
-        elif float(close[-1]) < float(bbands_lower[-1]) and float(rsi[-1]) < 30:
+        elif float(close.iloc[-1]) < float(bbands_lower.iloc[-1]) and float(rsi.iloc[-1]) < 30:
             return TradeSignal.BULLISH
         else:
             return TradeSignal.NO_CLEAR_PATTERN

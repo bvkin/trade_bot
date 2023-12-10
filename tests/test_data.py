@@ -33,6 +33,16 @@ moving_averages_test_cases = [
     }
 ]
 
+bbands_rsi_test_cases = [
+    {
+        "name": "bullish",
+        "ticker": "GOOGL",
+        "description": "bullish pattern",
+        "close_prices": [99.57, 98.71, 98.05, 98.30, 99.71, 97.18, 100.78, 101.39, 100.29, 100.53, 101.48, 102.97, 104.93, 94.82, 92.60, 96.58, 94.66, 90.50, 87.07, 83.49],
+        "expected": TradeSignal.BULLISH
+    }
+]
+
 engulfing_candlestick_test_cases = [
     {
         "name": "bearish",
