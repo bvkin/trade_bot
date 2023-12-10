@@ -30,5 +30,4 @@ class BBandsRSIStrategey(Strategy):
         if signal == TradeSignal.BULLISH:
             self.buy(tp=1.15*price, sl=0.95*price)
         elif signal==TradeSignal.BEARISH:
-            print(self.data)
             self.position.close()

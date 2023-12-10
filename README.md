@@ -6,8 +6,13 @@ This project is compatible with python 3.11.4. If you are managing multiple pyth
 
 ## Installation
 ### Installing required packages
+To install required packages and modules from this project to your local environment you can run
 ```
- pip install --no-cache-dir . --upgrade pip
+ pip install . --upgrade pip
+ ```
+ If you plan to make changes and test any of the modules you may want to add the `-e` option.
+```
+ pip install -e . --upgrade pip
  ```
 
 ## Usage
