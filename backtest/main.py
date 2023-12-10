@@ -7,16 +7,18 @@ import datetime
 from dotenv import load_dotenv
 import os
 import pandas as pd
-from backtest.moving_averages_strategy import MovingAveragesStrategy
-from backtest.engulfing_candlesticks_strategy import EngulfingCandlesticksStrategy
+from backtest.strategies.moving_averages import MovingAveragesStrategy
+from backtest.strategies.engulfing_candlesticks import EngulfingCandlesticksStrategy
+from backtest.strategies.bbands_rsi import BBandsRSIStrategey
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 
 
 if __name__ == '__main__':
 
     strategy_choices = {
+        "BBandsRSI": BBandsRSIStrategey,
+        "EngulfingCandlesticks": EngulfingCandlesticksStrategy,
         "MovingAverages": MovingAveragesStrategy,
-        "EngulfingCandlesticks": EngulfingCandlesticksStrategy
     }
 
     parser = argparse.ArgumentParser(description="Backtest a given stock over a given period")
@@ -47,7 +49,13 @@ if __name__ == '__main__':
     df = df.set_index('dates')
 
     # Set column names to backtest standard
-    df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+    df.rename(columns={
+        'open': 'Open',
+        'high': 'High',
+        'low': 'Low',
+        'close': 'Close',
+        'volume': 'Volume'
+    }, inplace=True)
 
     strat = strategy_choices[args.strategy]
 

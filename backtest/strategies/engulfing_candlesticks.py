@@ -5,11 +5,14 @@ from core.trading.engulfing_candlesticks import EngulfingCandlesticks
 class EngulfingCandlesticksStrategy(Strategy):
     def init(self):
         self.strat = EngulfingCandlesticks(self.data.df)
-        self.signals = self.I(self.strat.get_signals)
+        self.signals = self.I(self.strat.get_indicator, "signals")
 
     def next(self):
         price = self.data.Close[-1]
-        signal = self.strat.signal(self.signals)
+        indicators = {
+            "signals": self.signals
+        }
+        signal = self.strat.signal(indicators)
 
         if signal == TradeSignal.BULLISH:
             self.buy(tp=1.15*price, sl=0.95*price)
