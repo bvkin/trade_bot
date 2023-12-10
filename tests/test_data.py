@@ -38,8 +38,15 @@ bbands_rsi_test_cases = [
         "name": "bullish",
         "ticker": "GOOGL",
         "description": "bullish pattern",
-        "close_prices": [99.57, 98.71, 98.05, 98.30, 99.71, 97.18, 100.78, 101.39, 100.29, 100.53, 101.48, 102.97, 104.93, 94.82, 92.60, 96.58, 94.66, 90.50, 87.07, 83.49],
+        "close_prices": [99, 98, 98, 98, 99, 97, 100, 101, 100, 100, 101, 102, 104, 94, 92, 96, 94, 90, 87, 83],
         "expected": TradeSignal.BULLISH
+    },
+    {
+        "name": "bearish",
+        "ticker": "AAPL",
+        "description": "bearish pattern",
+        "close_prices" : [2901, 2888, 2753, 2751, 2740, 2771, 2800, 2832, 2782, 2795, 2725, 2713, 2670, 2601, 2607, 2534, 2584, 2582, 2665, 2713, 2757, 2960],
+        "expected": TradeSignal.BEARISH
     }
 ]
 
