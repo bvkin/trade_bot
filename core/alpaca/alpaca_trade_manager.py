@@ -3,6 +3,11 @@ import pandas as pd
 from typing import Any, List, Optional
 
 class AlpacaTradeManager:
+    timeframes = {
+        "day": TimeFrame.Day,
+        "hour": TimeFrame.Hour
+    }
+
     def __init__(self,
                  alpaca_api_key: str,
                  alpaca_secret_key: str,
@@ -20,11 +25,17 @@ class AlpacaTradeManager:
             self.api = api
 
 
-    def get_price_data(self, ticker: str, period_start: str, period_end: str, adjustment: str = 'raw') -> pd.DataFrame:
+    def get_price_data(self, ticker: str, period_start: str, period_end: str, timeframe: str = "day", adjustment: str = 'raw') -> pd.DataFrame:
         """
         Returns a pandas dataframe of the price data for last two days of a given ticker.
         """
-        return self.api.get_bars(ticker, TimeFrame.Day, period_start, period_end, adjustment=adjustment).df
+        return self.api.get_bars(
+            symbol=ticker, 
+            timeframe=self.timeframes[timeframe],
+            start=period_start,
+            end=period_end,
+            adjustment=adjustment
+        ).df
 
 
     def buy_stock(self, ticker: str) -> None:
