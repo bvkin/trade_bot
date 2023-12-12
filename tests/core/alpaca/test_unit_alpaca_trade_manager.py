@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch, Mock
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
+from alpaca_trade_api.rest import TimeFrame
+
 
 class TestAlpacaTradeManager(unittest.TestCase):
 
@@ -58,6 +60,29 @@ class TestAlpacaTradeManager(unittest.TestCase):
             time_in_force='gtc'
         )
 
+    def test_get_price_data(self):
+        """
+        Tests the 'get_price_data' method of the 'AlpacaTradeManager' class.
+        """
+        # Test call for day
+        self.trade_manager.get_price_data("TEST", "2023-12-11", "2023-12-12", timeframe="day", adjustment="raw")
+        self.mock_api.get_bars.assert_called_with(
+            symbol="TEST",
+            timeframe=TimeFrame.Day,
+            start="2023-12-11",
+            end="2023-12-12",
+            adjustment="raw"
+        )
+
+        # Test call for hour
+        self.trade_manager.get_price_data("TEST", "2023-12-11", "2023-12-12", timeframe="hour", adjustment="raw")
+        self.mock_api.get_bars.assert_called_with(
+            symbol="TEST",
+            timeframe=TimeFrame.Hour,
+            start="2023-12-11",
+            end="2023-12-12",
+            adjustment="raw"
+        )
 
 if __name__ == '__main__':
     unittest.main()
