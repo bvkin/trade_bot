@@ -10,7 +10,7 @@ class EngulfingCandlesticksStrategy(Strategy):
     def next(self):
         price = self.data.Close[-1]
         indicators = {
-            "signals": self.signals
+            "signals": self.signals.s
         }
         signal = self.strat.signal(indicators)
 

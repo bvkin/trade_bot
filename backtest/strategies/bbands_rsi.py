@@ -17,11 +17,11 @@ class BBandsRSIStrategey(Strategy):
     def next(self):
         price = self.data.Close[-1]
         indicators = {
-            "close" : self.close.df.close,
-            "bbands_upper" : self.bbands_upper.df.bbands_upper,
-            "bbands_middle" : self.bbands_middle.df.bbands_middle,
-            "bbands_lower" : self.bbands_lower.df.bbands_lower,
-            "trading_sideways" : self.trading_sideways.df.trading_sideways,
+            "close" : self.close.s,
+            "bbands_upper" : self.bbands_upper.s,
+            "bbands_middle" : self.bbands_middle.s,
+            "bbands_lower" : self.bbands_lower.s,
+            "trading_sideways" : self.trading_sideways.s,
             "rsi" : self.rsi.df.rsi
         }
 
