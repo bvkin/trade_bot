@@ -10,6 +10,7 @@ import pandas as pd
 from backtest.strategies.moving_averages import MovingAveragesStrategy
 from backtest.strategies.engulfing_candlesticks import EngulfingCandlesticksStrategy
 from backtest.strategies.bbands_rsi import BBandsRSIStrategey
+from backtest.strategies.mvwap_strategy import MVWAPStrategy
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 
 
@@ -19,6 +20,7 @@ if __name__ == '__main__':
         "BBandsRSI": BBandsRSIStrategey,
         "EngulfingCandlesticks": EngulfingCandlesticksStrategy,
         "MovingAverages": MovingAveragesStrategy,
+        "MVWAP": MVWAPStrategy
     }
 
     parser = argparse.ArgumentParser(description="Backtest a given stock over a given period")
@@ -39,9 +41,6 @@ if __name__ == '__main__':
 
     df = trade_manager.get_price_data(args.ticker, start_period.strftime("%Y-%m-%d"), end_period.strftime("%Y-%m-%d"), adjustment='split')
 
-    # Format dataframe to conform with backtesting library
-    df.drop(columns=['trade_count', 'vwap'], inplace=True)
-
     # Reformat dataframe index
     df = df.reset_index()
     df.rename(columns={'timestamp': 'dates'}, inplace=True)
@@ -54,7 +53,8 @@ if __name__ == '__main__':
         'high': 'High',
         'low': 'Low',
         'close': 'Close',
-        'volume': 'Volume'
+        'volume': 'Volume',
+        'vwap': 'vwap'
     }, inplace=True)
 
     strat = strategy_choices[args.strategy]

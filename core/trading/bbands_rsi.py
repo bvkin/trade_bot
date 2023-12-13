@@ -9,7 +9,6 @@ class BBandsRSI(Strategy):
     def __init__(self, df: pd.DataFrame) -> None:
         self.trading_sideways_threshold = 0.20
         self.rsi_peak_prominance_factor = 1.5
-        self.close_peak_prominance_factor = 1
 
         # Set indicators
         close = find_column_ignore_case(df, "close")
@@ -40,7 +39,6 @@ class BBandsRSI(Strategy):
         # For compatability with backtesting
         if indicators == None:
             indicators = self.indicators
-
         close = indicators["close"]
         bbands_upper = indicators["bbands_upper"]
         bbands_lower = indicators["bbands_lower"]
