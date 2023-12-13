@@ -7,7 +7,7 @@ import pandas as pd
 
 class BBandsRSI(Strategy):
     def __init__(self, df: pd.DataFrame) -> None:
-        self.trading_sideways_threshold = 0.20
+        self.trading_sideways_threshold = 0.25
         self.rsi_peak_prominance_factor = 1.5
         self.close_peak_prominance_factor = 1
 

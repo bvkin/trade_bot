@@ -3,20 +3,23 @@ from core.trading.strategy import Strategy
 from core.utils.column import find_column_ignore_case
 import logging
 import pandas as pd
-from talib import SMA
+from talib import SMA, MACDEXT
 
-class MovingAverages(Strategy):
+class MACD(Strategy):
     """
     Class representing the moving averages trading strategy
     Short and long windows are customizable on init
     """
-    def __init__(self, df: pd.DataFrame, short_window: int = 5, long_window: int = 20):
-        close = find_column_ignore_case(df, 'close')
+    def __init__(self, df: pd.DataFrame):
+        close = find_column_ignore_case(df, "close")
+        macd, macdsignal, macdhist = MACDEXT(close, fastperiod=12, slowperiod=26, signalperiod=9)
+
         self.indicators = {
             "close": close.tolist(),
-            "short_window_ma": self.gen_ma(close, short_window).tolist(),
-            "long_window_ma": self.gen_ma(close, long_window).tolist(),
-            "window_ma_200": self.gen_ma(close, 200).tolist(),
+            "macd": macd.tolist(),
+            "macdsignal": macdsignal.tolist(),
+            "macdhist": macdhist.tolist(),
+            "window_ma_200":  self.gen_ma(close, 200).tolist()
         }
 
     def get_indicator(self, name: str) -> dict:
@@ -25,12 +28,12 @@ class MovingAverages(Strategy):
         """
         return self.indicators[name]
 
-    def gen_ma(self, close: pd.Series, window: int) -> pd.Series:
+    def gen_ma(self, closes: pd.Series, window: int) -> pd.Series:
         """
         Uses talib to generate a moving average based on an input window size
         """
         try:
-            return SMA(close, timeperiod=window)
+            return SMA(closes, timeperiod=window)
         except IndexError:
             logging.warning(f"Unable to interpret required data")
             return []
@@ -44,14 +47,14 @@ class MovingAverages(Strategy):
             indicators = self.indicators
 
         close = indicators["close"]
-        short_window_ma = indicators["short_window_ma"]
-        long_window_ma = indicators["long_window_ma"]
+        macd = indicators["macd"]
+        macdsignal = indicators["macdsignal"]
         window_ma_200 = indicators["window_ma_200"]
 
-        # Generate signals
-        if short_window_ma[-1] > long_window_ma[-1] and short_window_ma[-2] <= long_window_ma[-2] and close[-1] > window_ma_200[-1]: # 5 day crosses above 20 day
+        if macd[-1] > macdsignal[-1] and macd[-2] <= macdsignal[-2] and close[-1] > window_ma_200[-1]:
             return TradeSignal.BULLISH
-        elif short_window_ma[-1] < long_window_ma[-1] and short_window_ma[-2] >= long_window_ma[-2] and close[-1] < window_ma_200[-1]: # 5 day drops below 20 day
+        elif  macd[-1] < macdsignal[-1] and macd[-2] >= macdsignal[-2] and close[-1] < window_ma_200[-1]:
             return TradeSignal.BEARISH
         else:
             return TradeSignal.NO_CLEAR_PATTERN
+

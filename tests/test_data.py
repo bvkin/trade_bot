@@ -7,21 +7,21 @@ moving_averages_test_cases = [
         "name": "bullish",
         "ticker": "GOOGL",
         "description": "5_day_ma == 100.4, 20_day_ma == 100.1, prev_day_ma_5 == 99.8, prev_day_ma_20 == 99.95",
-        "close_prices": [100 for _ in range(16)] + [99, 99, 100, 101, 103],
+        "close_prices": [100 for _ in range(196)] + [99, 99, 100, 101, 103],
         "expected": TradeSignal.BULLISH
     },
     {
         "name": "bearish",
         "ticker": "AAPL",
         "description": "5_day_ma == 103, 20_day_ma == 110.5",
-        "close_prices": [100 for _ in range(16)] + [102, 101, 100, 99, 97],
+        "close_prices": [100 for _ in range(196)] + [102, 101, 100, 99, 97],
         "expected": TradeSignal.BEARISH
     },
     {
-        "name": "bearish",
+        "name": "no_clear_pattern",
         "ticker": "MSFT",
         "description": "5_day_ma == 100, 20_day_ma == 100",
-        "close_prices": [100 for _ in range(21)] ,
+        "close_prices": [100 for _ in range(200)] ,
         "expected": TradeSignal.NO_CLEAR_PATTERN
     },
     {
@@ -30,6 +30,16 @@ moving_averages_test_cases = [
         "description": "trigger index out of bounds exception",
         "close_prices": [100 for _ in range(21)],
         "expected": TradeSignal.NO_CLEAR_PATTERN
+    }
+]
+
+macd_test_cases = [
+    {
+        "name": "bullish",
+        "ticker": "GOOGL",
+        "description": "bullish pattern",
+        "close_prices": [300 for _ in range(180)] + [312.75, 311.66, 311.76, 308.54, 310.67, 312.0, 304.21, 307.26, 300.09, 304.56, 308.94, 310.57, 312.19, 317.01, 313.77, 316.16, 314.6, 317.64, 314.81, 318.93, 321.98],
+        "expected": TradeSignal.BULLISH
     }
 ]
 
