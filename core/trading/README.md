@@ -5,10 +5,13 @@ If you wish to add a new trading strategy into this module. Create a new class i
 ## Strategies
 
 ### Moving Averages
-Uses the [Moving Averages](https://www.investopedia.com/terms/m/movingaverage.asp#:~:text=A%20moving%20average%20is%20a,price%20trends%20for%20specific%20securities.) technical indicator. The strategy uses two moving average lines, a short and long window. When the short window average crosses above the long window, a buy signal is triggered. When the short window crosses below the long window, a sell signal is triggered.
+Uses the [Moving Averages](https://www.investopedia.com/terms/m/movingaverage.asp#:~:text=A%20moving%20average%20is%20a,price%20trends%20for%20specific%20securities.) technical indicator. The strategy uses two moving average lines, a short and long window. When the short window average crosses above the long window, a buy signal is triggered. When the short window crosses below the long window, a sell signal is triggered. Additionally, a 200 day moving averge is used to confirm trend. A bearish signal requires a closing price above the 200 day moving average line and a bearish signal requires a closing price below.
 
 ### Engulfing Candlesticks
 Uses the [Engulfing Candlesticks](https://www.investopedia.com/terms/b/bullishengulfingpattern.asp) signal pattern. It returns a signal based on the most two recent days in the dataframe.
 
 ## Bollinger Bands + RSI
 Uses a combination of [Bollinger Bands](https://www.investopedia.com/terms/b/bollingerbands.asp) and [RSI](https://www.investopedia.com/articles/active-trading/042114/overbought-or-oversold-use-relative-strength-index-find-out.asp) technical indicators. Bollinger Bands are used to determine when the market is trading sideways. This is indicated by when the two bands are within the 20th percentile of each other. Trading sidways is considered a dangerous time to buy. A Bullish signal is given when either the market is trading sideways or when the RSI value is above 60 at the same time the close value crosses above the upper bollinger band. A buy signal occurs when the RSI value is below 30 and the close value crosses below the lower bollinger band.
+
+## MACD
+The MACD strategy uses a combination of a standard [MACD indicator](https://www.investopedia.com/terms/m/macd.asp). A bullish signal is given when the macd line crosses above the signal line. A bearish signal is given when the macd line crosses below the signal line. Additionally, a 200 day moving averge is used to confirm trend. A bearish signal requires a closing price above the 200 day moving average line and a bearish signal requires a closing price below.
