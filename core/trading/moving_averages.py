@@ -13,7 +13,7 @@ class MovingAverages(Strategy):
     def __init__(self, df: pd.DataFrame, short_window: int = 5, long_window: int = 20):
         close = find_column_ignore_case(df, 'close')
         self.indicators = {
-            "close": close,
+            "close": close.tolist(),
             "short_window_ma": self.gen_ma(close, short_window).tolist(),
             "long_window_ma": self.gen_ma(close, long_window).tolist(),
             "window_ma_200": self.gen_ma(close, 200).tolist(),

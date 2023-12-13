@@ -7,21 +7,21 @@ moving_averages_test_cases = [
         "name": "bullish",
         "ticker": "GOOGL",
         "description": "5_day_ma == 100.4, 20_day_ma == 100.1, prev_day_ma_5 == 99.8, prev_day_ma_20 == 99.95",
-        "close_prices": [100 for _ in range(16)] + [99, 99, 100, 101, 103],
+        "close_prices": [100 for _ in range(196)] + [99, 99, 100, 101, 103],
         "expected": TradeSignal.BULLISH
     },
     {
         "name": "bearish",
         "ticker": "AAPL",
         "description": "5_day_ma == 103, 20_day_ma == 110.5",
-        "close_prices": [100 for _ in range(16)] + [102, 101, 100, 99, 97],
+        "close_prices": [100 for _ in range(196)] + [102, 101, 100, 99, 97],
         "expected": TradeSignal.BEARISH
     },
     {
-        "name": "bearish",
+        "name": "no_clear_pattern",
         "ticker": "MSFT",
         "description": "5_day_ma == 100, 20_day_ma == 100",
-        "close_prices": [100 for _ in range(21)] ,
+        "close_prices": [100 for _ in range(200)] ,
         "expected": TradeSignal.NO_CLEAR_PATTERN
     },
     {
