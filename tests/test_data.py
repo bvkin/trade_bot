@@ -33,6 +33,16 @@ moving_averages_test_cases = [
     }
 ]
 
+macd_test_cases = [
+    {
+        "name": "bullish",
+        "ticker": "GOOGL",
+        "description": "bullish pattern",
+        "close_prices": [300 for _ in range(180)] + [312.75, 311.66, 311.76, 308.54, 310.67, 312.0, 304.21, 307.26, 300.09, 304.56, 308.94, 310.57, 312.19, 317.01, 313.77, 316.16, 314.6, 317.64, 314.81, 318.93, 321.98],
+        "expected": TradeSignal.BULLISH
+    }
+]
+
 bbands_rsi_test_cases = [
     {
         "name": "bullish",

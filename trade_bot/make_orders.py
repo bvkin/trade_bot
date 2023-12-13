@@ -14,7 +14,7 @@ def make_orders(trade_manager: AlpacaTradeManager, Strategy: Strategy, tickers: 
     Makes sell orders for all owned stocks bearish signal.
     """
     purchased_tickers, sold_tickers = [], []
-    period_start, period_end = get_market_day_range(21) # 21 for 20 day moving avg
+    period_start, period_end = get_market_day_range(365)
 
     logging.info("Making orders...")
     for ticker in tickers:

@@ -15,10 +15,10 @@ class MACD(Strategy):
         macd, macdsignal, macdhist = MACDEXT(close, fastperiod=12, slowperiod=26, signalperiod=9)
 
         self.indicators = {
-            "close": close,
-            "macd": macd,
-            "macdsignal": macdsignal,
-            "macdhist": macdhist,
+            "close": close.tolist(),
+            "macd": macd.tolist(),
+            "macdsignal": macdsignal.tolist(),
+            "macdhist": macdhist.tolist(),
             "window_ma_200":  self.gen_ma(close, 200).tolist()
         }
 
