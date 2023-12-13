@@ -9,9 +9,9 @@ class MovingAveragesStrategy(Strategy):
     def init(self):
         self.strat = MovingAverages(self.data.df, self.short_window, self.long_window)
         self.close = self.I(self.strat.get_indicator, "close", plot=False, name="close")
-        self.short_window_ma = self.I(self.strat.get_indicator, "short_window_ma")
-        self.long_window_ma  = self.I(self.strat.get_indicator, "long_window_ma")
-        self.window_ma_200  = self.I(self.strat.get_indicator, "window_ma_200")
+        self.short_window_ma = self.I(self.strat.get_indicator, "short_window_ma", name="short_window_ma")
+        self.long_window_ma  = self.I(self.strat.get_indicator, "long_window_ma", name="long_window_ma")
+        self.window_ma_200  = self.I(self.strat.get_indicator, "window_ma_200", name="window_ma_200")
 
     def next(self):
         price = self.data.Close[-1]
