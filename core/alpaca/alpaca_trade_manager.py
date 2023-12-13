@@ -1,6 +1,7 @@
 from alpaca_trade_api.rest import REST, TimeFrame
 import pandas as pd
 from typing import Any, List, Optional
+import logging
 
 class AlpacaTradeManager:
     def __init__(self,
@@ -31,9 +32,22 @@ class AlpacaTradeManager:
         """
         Buys 5% of the buying power of the account for a given ticker.
         Limits losses at 10% of original purchase value.
-        """
+        """ 
+        logging.info("Attempting to place buy order...")
         buying_power = float(self.api.get_account().buying_power)
         purchase_amnt = round(buying_power * 0.05, 2)
+        
+        # logging.info("buying power" + str(buying_power))
+        # logging.info("purchase amount: " + str(purchase_amnt))
+        if purchase_amnt < 1:
+            purchase_amnt=1
+
+        if purchase_amnt > buying_power or buying_power < 1:
+            logging.info("Insufficient funds to acquire " + ticker)
+            return
+    
+        # logging.info("purchase amount: " + str(purchase_amnt))
+        
         floor = round(purchase_amnt * 0.9, 2)
 
         self.api.submit_order(
@@ -47,6 +61,8 @@ class AlpacaTradeManager:
             time_in_force='day'
         )
 
+        logging.info("Buy order for " + ticker + " placed.")
+
 
     def sell_stock(self, ticker: str) -> None:
         """
@@ -57,7 +73,7 @@ class AlpacaTradeManager:
             qty=self.get_stock_qty(ticker),
             side='sell',
             type='market',
-            time_in_force='gtc'
+            time_in_force='day'
         )
 
 
