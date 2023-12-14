@@ -1,7 +1,6 @@
-from alpaca_trade_api.rest import REST, TimeFrame
+from alpaca_trade_api.rest import REST, APIError, TimeFrame
 import pandas as pd
 from typing import Any, List, Optional
-from alpaca_trade_api.rest import APIError 
 import logging 
 
 class AlpacaTradeManager:
