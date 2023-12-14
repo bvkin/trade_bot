@@ -47,16 +47,19 @@ class AlpacaTradeManager:
         purchase_amnt = round(buying_power * 0.05, 2)
         floor = round(purchase_amnt * 0.9, 2)
 
-        self.api.submit_order(
-            symbol=ticker,
-            notional=purchase_amnt,
-            stop_loss=dict(
-              stop_price=floor
-            ),
-            side='buy',
-            type='market',
-            time_in_force='day'
-        )
+        try:
+            self.api.submit_order(
+                symbol=ticker,
+                notional=purchase_amnt,
+                stop_loss=dict(
+                stop_price=floor
+                ),
+                side='buy',
+                type='market',
+                time_in_force='day'
+            )
+        except:
+            print('Insufficient Funds')
 
 
     def sell_stock(self, ticker: str) -> None:
