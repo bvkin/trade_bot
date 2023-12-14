@@ -42,7 +42,6 @@ def make_orders(trade_manager: AlpacaTradeManager, Strategy: Strategy, tickers: 
         trade_manager.buy_stock(ticker)
 
         if strat.signal() == TradeSignal.BULLISH:
-            trade_manager.buy_stock(ticker)
             
             purchased_tickers.append(ticker)
 
