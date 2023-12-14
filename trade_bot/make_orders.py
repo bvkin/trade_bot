@@ -14,7 +14,7 @@ def make_orders(trade_manager: AlpacaTradeManager, Strategy: Strategy, tickers: 
     """
     
     purchased_tickers, sold_tickers = [], []
-    period_start, period_end = get_market_day_range(21) # 21 for 20 day moving avg
+    period_start, period_end = get_market_day_range(365) # 21 for 20 day moving avg
 
     logging.info("Making orders...")
     
@@ -23,7 +23,6 @@ def make_orders(trade_manager: AlpacaTradeManager, Strategy: Strategy, tickers: 
     for ticker in owned_tickers:
         logging.info("Evaluating " + ticker + " for sell")
         df = trade_manager.get_price_data(ticker, period_start, period_end)
-        
         strat = Strategy(df)
         
         if strat.signal() == TradeSignal.BEARISH:

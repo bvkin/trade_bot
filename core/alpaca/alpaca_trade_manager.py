@@ -1,6 +1,8 @@
 from alpaca_trade_api.rest import REST, TimeFrame
 import pandas as pd
 from typing import Any, List, Optional
+from alpaca_trade_api.rest import APIError 
+import logging 
 
 class AlpacaTradeManager:
     timeframes = {
@@ -58,9 +60,8 @@ class AlpacaTradeManager:
                 type='market',
                 time_in_force='day'
             )
-        except:
-            print('Insufficient Funds')
-
+        except APIError as e:
+            logging.error(f"Alpaca APIError: {e}")
 
     def sell_stock(self, ticker: str) -> None:
         """
@@ -73,7 +74,6 @@ class AlpacaTradeManager:
             type='market',
             time_in_force='gtc'
         )
-
 
     def get_stock_qty(self, ticker: str) -> float:
         """
