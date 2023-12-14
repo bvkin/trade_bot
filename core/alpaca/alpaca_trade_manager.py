@@ -1,6 +1,7 @@
-from alpaca_trade_api.rest import REST, TimeFrame
+from alpaca_trade_api.rest import REST, APIError, TimeFrame
 import pandas as pd
 from typing import Any, List, Optional
+import logging 
 
 class AlpacaTradeManager:
     timeframes = {
@@ -47,17 +48,19 @@ class AlpacaTradeManager:
         purchase_amnt = round(buying_power * 0.05, 2)
         floor = round(purchase_amnt * 0.9, 2)
 
-        self.api.submit_order(
-            symbol=ticker,
-            notional=purchase_amnt,
-            stop_loss=dict(
-              stop_price=floor
-            ),
-            side='buy',
-            type='market',
-            time_in_force='day'
-        )
-
+        try:
+            self.api.submit_order(
+                symbol=ticker,
+                notional=purchase_amnt,
+                stop_loss=dict(
+                stop_price=floor
+                ),
+                side='buy',
+                type='market',
+                time_in_force='day'
+            )
+        except APIError as e:
+            logging.error(f"Alpaca APIError: {e}")
 
     def sell_stock(self, ticker: str) -> None:
         """
@@ -70,7 +73,6 @@ class AlpacaTradeManager:
             type='market',
             time_in_force='gtc'
         )
-
 
     def get_stock_qty(self, ticker: str) -> float:
         """

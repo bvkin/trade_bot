@@ -39,14 +39,14 @@ def test_make_orders_engulfing_candlesticks(mock_get_market_day_range, mock_trad
 
     make_orders(trade_manager=mock_trade_manager, Strategy=EngulfingCandlesticks, tickers=tickers, sns_client=mock_sns_client, sns_topic_arn=mock_sns_topic_arn)
 
-    # Ensure buy_stock was called for BULLISH signal
-    mock_trade_manager.buy_stock.assert_called_once_with("AAPL")
-    
     # Ensure sell_stock was called for BEARISH signal
     mock_trade_manager.sell_stock.assert_called_once_with("GOOGL")
+    
+    # Ensure buy_stock was called for BULLISH signal
+    mock_trade_manager.buy_stock.assert_called_once_with("AAPL")
 
     # Ensure SNS publish was called for both buy and sell
     mock_sns_client.publish.assert_has_calls([
-        call(Message='Trade Bot Buy Orders Made: AAPL',TopicArn=mock_sns_topic_arn),
-        call(Message='Trade Bot Sell Orders Made: GOOGL', TopicArn=mock_sns_topic_arn)
+        call(Message='Trade Bot Sell Orders Made: GOOGL', TopicArn=mock_sns_topic_arn),
+        call(Message='Trade Bot Buy Orders Made: AAPL',TopicArn=mock_sns_topic_arn)
     ])

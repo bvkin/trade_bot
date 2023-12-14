@@ -35,14 +35,14 @@ def test_make_orders(mock_get_market_day_range, mock_trade_manager, mock_sns_cli
     mock_sns_topic_arn = "arn:aws:sns:us-east-1:123456789101:trade_bot_signals"
     make_orders(trade_manager=mock_trade_manager, Strategy=BBandsRSI, tickers=tickers, sns_client=mock_sns_client, sns_topic_arn=mock_sns_topic_arn)
     
-    # Ensure buy_stock was called for BULLISH signal
-    mock_trade_manager.buy_stock.assert_called_once_with("GOOGL")
-    
     # Ensure sell_stock was called for BEARISH signal
     mock_trade_manager.sell_stock.assert_called_once_with("AAPL")
     
+    # Ensure buy_stock was called for BULLISH signal
+    mock_trade_manager.buy_stock.assert_called_once_with("GOOGL")
+    
     # Ensure SNS publish was called for both buy and sell
     mock_sns_client.publish.assert_has_calls([
-        call(Message='Trade Bot Buy Orders Made: GOOGL',TopicArn=mock_sns_topic_arn),
-        call(Message='Trade Bot Sell Orders Made: AAPL', TopicArn=mock_sns_topic_arn)
+        call(Message='Trade Bot Sell Orders Made: AAPL', TopicArn=mock_sns_topic_arn),
+        call(Message='Trade Bot Buy Orders Made: GOOGL',TopicArn=mock_sns_topic_arn)
     ])
