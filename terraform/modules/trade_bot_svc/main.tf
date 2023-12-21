@@ -7,15 +7,9 @@ resource "aws_ecs_service" "this" {
   name          = var.name
   cluster       = var.ecs_cluster_id
   desired_count = 1
-  launch_type   = "FARGATE"
+  launch_type   = "EC2"
 
   task_definition = "${aws_ecs_task_definition.this.family}:${aws_ecs_task_definition.this.revision}"
-
-  network_configuration {
-    assign_public_ip = true
-    security_groups = [aws_security_group.ecs_service.id]
-    subnets         = var.subnet_ids
-  }
 }
 
 #######################
@@ -25,8 +19,7 @@ resource "aws_ecs_task_definition" "this" {
   family                   = var.name
   task_role_arn            = aws_iam_role.task_role.arn
   execution_role_arn       = aws_iam_role.task_execution.arn
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
+  requires_compatibilities = ["EC2"]
   cpu                      = var.ecs_vcpu
   memory                   = var.ecs_memory
   container_definitions = jsonencode([
@@ -39,6 +32,10 @@ resource "aws_ecs_task_definition" "this" {
         {
           name = "AWS_SNS_TOPIC_ARN"
           value = var.sns_topic_arn
+        },
+        {
+          name = "AWS_DEFAULT_REGION"
+          value = data.aws_region.current.name
         }
       ],
       "secrets" = [
@@ -61,6 +58,30 @@ resource "aws_ecs_task_definition" "this" {
       }
     }
   ])
+}
+
+
+###########
+### EC2 ###
+###########
+data "aws_ssm_parameter" "ecs_optimized_ami" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+}
+
+resource "aws_instance" "this" {
+  ami           =  data.aws_ssm_parameter.ecs_optimized_ami.value
+  instance_type = var.ec2_instance_type
+
+  associate_public_ip_address = true
+  subnet_id                   = var.subnet_ids[0]
+  vpc_security_group_ids      = [aws_security_group.ecs_service.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              echo ECS_CLUSTER=${var.ecs_cluster_id} >> /etc/ecs/ecs.config
+              EOF
+
+  iam_instance_profile = aws_iam_instance_profile.ecs_instance_profile.name
 }
 
 ########################
@@ -179,4 +200,37 @@ data "aws_iam_policy_document" "param_store" {
 resource "aws_iam_role_policy_attachment" "param_store" {
   role       = aws_iam_role.task_execution.name
   policy_arn = aws_iam_policy.param_store.arn
+}
+
+# EC2
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "${var.name}_ecs_instance_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        },
+      },
+    ],
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_instance_role_attachment" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_role_policy_attachment" "systems_manager" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedEC2InstanceDefaultPolicy"
+}
+
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "${var.name}_ecs_instance_profile"
+  role = aws_iam_role.ecs_instance_role.name
 }

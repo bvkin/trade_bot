@@ -28,7 +28,7 @@ inputs = {
           selection = {
             tagStatus     = "any",
             countType     = "imageCountMoreThan",
-            countNumber   = 3
+            countNumber   = 5
           },
           action = {
             type = "expire"

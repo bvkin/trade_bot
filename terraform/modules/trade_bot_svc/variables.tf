@@ -32,13 +32,19 @@ variable "image_tag" {
 variable "ecs_vcpu" {
   description = "Vcpu value assigned to ECS cluster"
   type        = number
-  default     = 256
+  default     = 1024
 }
 
 variable "ecs_memory" {
   description = "Memory value assigned to ECS cluster"
   type        = number
-  default     = 512
+  default     = 455
+}
+
+variable "ec2_instance_type" {
+  description = "Type of EC2 instance to joing ECS cluster"
+  type = string
+  default = "t2.nano"
 }
 
 variable "sns_topic_arn" {
