@@ -48,12 +48,13 @@ class AlpacaTradeManager:
         """
         buying_power = float(self.api.get_account().buying_power)
         purchase_amnt = round(buying_power * 0.05, 2)
-
-        period_start, period_end = get_market_day_range(365) 
+        period_start, period_end = get_market_day_range(365)
+        floor = round(purchase_amnt * 0.9, 2)
         df = self.get_price_data(ticker, period_start, period_end)
-        atr = ATR(df['high'], df['low'], df['close'], timeperiod=14)
-        floor = atr[-1] * 1.2
 
+        if type(df)== pd.core.frame.DataFrame:
+          atr = ATR(df['high'], df['low'], df['close'], timeperiod=14)
+          floor = atr[-1] * 1.2
 
         try:
             self.api.submit_order(
