@@ -51,8 +51,8 @@ class AlpacaTradeManager:
 
         period_start, period_end = get_market_day_range(365) 
         df = self.get_price_data(ticker, period_start, period_end)
-        floor = ATR(df['high'], df['low'], df['close'], timeperiod=14)
-        floor = floor[-1] * 1.5
+        atr = ATR(df['high'], df['low'], df['close'], timeperiod=14)
+        floor = atr[-1] * 1.5
 
 
         try:
