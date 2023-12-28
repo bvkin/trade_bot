@@ -54,7 +54,8 @@ class AlpacaTradeManager:
 
         if type(df)== pd.core.frame.DataFrame:
           atr = ATR(df['high'], df['low'], df['close'], timeperiod=14)
-          floor = atr[-1] * 1.2
+          print(atr[-1])
+          floor = purchase_amnt - (atr[-1] * 1.2) 
 
         try:
             self.api.submit_order(
