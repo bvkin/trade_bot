@@ -37,7 +37,6 @@ def make_orders(trade_manager: AlpacaTradeManager, Strategy: Strategy, tickers: 
         df = trade_manager.get_price_data(ticker, period_start, period_end)
         strat = Strategy(df)
 
-        # trade_manager.buy_stock(ticker)
         if strat.signal() == TradeSignal.BULLISH:
             trade_manager.buy_stock(ticker)
             logging.info("Buy order for " + ticker + " placed.")
