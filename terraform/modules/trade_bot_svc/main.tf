@@ -30,6 +30,14 @@ resource "aws_ecs_task_definition" "this" {
       "command": ["--strategy", var.strategy, "--tickers", join(",", var.tickers)],
       "environment" = [
         {
+          name = "BUYING_PERCENTAGE"
+          value = var.buying_percentage
+        },
+        {
+          name - "SL_TP_MULTIPLIER",
+          value = var.sl_tp_multiplier
+        },
+        {
           name = "AWS_SNS_TOPIC_ARN"
           value = var.sns_topic_arn
         },
