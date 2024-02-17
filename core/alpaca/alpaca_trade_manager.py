@@ -28,7 +28,7 @@ class AlpacaTradeManager:
 
     def get_price_data(self, ticker: str, period_start: str, period_end: str, timeframe: str = "day", adjustment: str = 'raw') -> pd.DataFrame:
         """
-        Returns a pandas dataframe of the price data for last two days of a given ticker.
+        Returns a pandas dataframe of the price data for a given time period of a given ticker.
         """
         return self.api.get_bars(
             symbol=ticker, 
@@ -38,6 +38,16 @@ class AlpacaTradeManager:
             adjustment=adjustment
         ).df
 
+    def get_quotes(self, ticker: str, period_start: str, period_end: str, limit: int = 10) -> pd.DataFrame:
+        """
+        Returns a pandas dataframe of the quotes data for given time period of a given ticker.
+        """
+        return self.api.get_quotes(
+            symbol=ticker,
+            start=period_start,
+            end=period_end,
+            limit=limit
+        ).df
 
     def buy_stock(self, ticker: str) -> None:
         """
