@@ -84,5 +84,29 @@ class TestAlpacaTradeManager(unittest.TestCase):
             adjustment="raw"
         )
 
+    def test_get_quotes(self):
+        """
+        Test the 'get_quotes' method of the 'AlpacaTradeManager' class
+        """
+        # Test default limit
+        self.trade_manager.get_quotes("TEST", "2023-12-11", "2023-12-12")
+        self.mock_api.get_quotes.assert_called_with(
+            symbol="TEST",
+            start="2023-12-11",
+            end="2023-12-12",
+            limit=10
+        )
+
+        # Test input limit
+        self.trade_manager.get_quotes("TEST", "2023-12-11", "2023-12-12", limit=20)
+        self.mock_api.get_quotes.assert_called_with(
+            symbol="TEST",
+            start="2023-12-11",
+            end="2023-12-12",
+            limit=20
+        )
+
+
+
 if __name__ == '__main__':
     unittest.main()
