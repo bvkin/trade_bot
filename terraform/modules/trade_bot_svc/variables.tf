@@ -1,3 +1,16 @@
+
+variable "buying_percentage" {
+  description: "Percentage to Buy",
+  type = number,
+  default = 0.5
+}
+
+variable "sl_tp_multiplier" {
+  description "stop loss and take profit default value",
+  type = number,
+  default = 1.5
+}
+
 variable "name" {
   description = "Name of service"
   type        = string

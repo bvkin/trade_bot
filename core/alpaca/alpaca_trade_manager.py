@@ -1,7 +1,9 @@
 from alpaca_trade_api.rest import REST, APIError, TimeFrame
 import pandas as pd
 from typing import Any, List, Optional
+from core.utils.market_time import get_market_day_range
 import logging 
+from talib import ATR
 
 class AlpacaTradeManager:
     timeframes = {
@@ -56,7 +58,13 @@ class AlpacaTradeManager:
         """
         buying_power = float(self.api.get_account().buying_power)
         purchase_amnt = round(buying_power * 0.05, 2)
+        period_start, period_end = get_market_day_range(365)
         floor = round(purchase_amnt * 0.9, 2)
+        df = self.get_price_data(ticker, period_start, period_end)
+
+        if type(df)== pd.core.frame.DataFrame:
+          atr = ATR(df['high'], df['low'], df['close'], timeperiod=14)
+          floor = purchase_amnt - (atr[-1] * 1.2) 
 
         try:
             self.api.submit_order(
