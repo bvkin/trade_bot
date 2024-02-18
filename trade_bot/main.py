@@ -3,6 +3,9 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from core.alpaca.alpaca_trade_manager import AlpacaTradeManager
 from core.trading.moving_averages import MovingAverages
 from core.trading.engulfing_candlesticks import EngulfingCandlesticks
+from core.trading.bbands_rsi import BBandsRSI
+from core.trading.macd import MACD
+
 import boto3
 import datetime
 from dotenv import load_dotenv
@@ -22,8 +25,11 @@ def parse_tickers(tickers):
 
 if __name__ == '__main__':
     strategy_choices = {
+        "BBandsRSI": BBandsRSI,
+        "EngulfingCandlesticks": EngulfingCandlesticks,
+        "EngulfingCandlesticks": EngulfingCandlesticks,
+        "MACD": MACD,
         "MovingAverages": MovingAverages,
-        "EngulfingCandlesticks": EngulfingCandlesticks
     }
 
     parser = argparse.ArgumentParser(description="Bot to automatically manage a stock portfolio")
